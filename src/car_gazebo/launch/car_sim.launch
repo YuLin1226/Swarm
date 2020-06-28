@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+
+<launch>
+  <!-- <env name="GAZEBO_RESOURCE_PATH" value="$(find car_gazebo)/media/materials"/> -->
+
+  <arg name="use_rviz" default="false" /> 
+  <arg name="use_joy" default="false" /> 
+  <arg name="use_lidar_detect" default="false" /> 
+  <arg name="use_aruco_detect" default="true" /> 
+  <arg name="use_find_object" default="false" /> 
+  <arg name="gazebo_gui" default="true" /> 
+
+<!-- We resume the logic in empty_world.launch, changing only the name of the world to be launched -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find car_gazebo)/worlds/indoor.world"/>
+    <arg name="paused" value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui" value="$(arg gazebo_gui)"/>
+    <arg name="recording" value="false"/>
+    <arg name="debug" value="false"/>
+    <arg name="verbose" value="false"/>
+  </include>
+
+
+
+
+
+<!-- Spawn car in Gazebo -->
+<group ns="solamr_1">
+    <arg name="robot_name" value="solamr_1"/>
+    <param name="tf_prefix" value="$(arg robot_name)" />  
+    <!-- interpret xacro into urdf-->
+    <param name="robot_description" command="$(find xacro)/xacro --inorder $(find car_description)/src/urdf/carA.xacro robotName:=$(arg robot_name)" />
+    <!-- spawn model from parameter server : robot_description -->
+    <node pkg="gazebo_ros" type="spawn_model" name="spawn_urdf_$(arg robot_name)" args="-urdf -model $(arg robot_name) -x -2 -y 1 -z 0 -param robot_description" />
+    <!-- control file: controller spawner, robot_state_publisher -->
+    <include file="$(find car_control)/launch/car_control.launch">
+        <arg name="robot_ns" value="$(arg robot_name)" />
+    </include>
+</group>
+
+<!-- Spawn solamr_2 in Gazebo -->
+<?ingore
+<group ns="solamr_2">
+    <arg name="robot_name" value="solamr_2"/>
+    <param name="tf_prefix" value="$(arg robot_name)" />  
+    <!-- interpret xacro into urdf-->
+    <param name="robot_description" command="$(find xacro)/xacro --inorder $(find car_description)/src/urdf/carA.xacro robotName:=$(arg robot_name)" />
+    <!-- spawn model from parameter server : robot_description -->
+    <node pkg="gazebo_ros" type="spawn_model" name="spawn_urdf_$(arg robot_name)" args="-urdf -model $(arg robot_name) -x 2 -y 1 -z 0 -Y 3.14 -param robot_description" />
+    <!-- control file: controller spawner, robot_state_publisher -->
+    <include file="$(find car_control)/launch/car_control.launch">
+        <arg name="robot_ns" value="$(arg robot_name)" />
+    </include>
+</group>
+?>
+
+<!-- rviz -->
+    <node pkg="rviz" type="rviz" name="rviz" if="$(arg use_rviz)" />
+</launch>

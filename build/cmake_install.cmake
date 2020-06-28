@@ -126,6 +126,9 @@ endif()
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   include("/home/yulin/swarm_ws/build/gtest/cmake_install.cmake")
+  include("/home/yulin/swarm_ws/build/car_control/cmake_install.cmake")
+  include("/home/yulin/swarm_ws/build/car_gazebo/cmake_install.cmake")
+  include("/home/yulin/swarm_ws/build/car_description/cmake_install.cmake")
 
 endif()
 
