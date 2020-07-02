@@ -280,6 +280,12 @@ car_gazebo_BINARY_DIR:STATIC=/home/yulin/swarm_ws/build/car_gazebo
 //Value Computed by CMake
 car_gazebo_SOURCE_DIR:STATIC=/home/yulin/swarm_ws/src/car_gazebo
 
+//Value Computed by CMake
+car_teleop_BINARY_DIR:STATIC=/home/yulin/swarm_ws/build/car_teleop
+
+//Value Computed by CMake
+car_teleop_SOURCE_DIR:STATIC=/home/yulin/swarm_ws/src/car_teleop
+
 //The directory containing a CMake configuration file for catkin.
 catkin_DIR:PATH=/opt/ros/kinetic/share/catkin/cmake
 
@@ -461,7 +467,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=6
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=7
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP

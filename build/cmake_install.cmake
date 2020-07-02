@@ -129,6 +129,7 @@ if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   include("/home/yulin/swarm_ws/build/car_control/cmake_install.cmake")
   include("/home/yulin/swarm_ws/build/car_gazebo/cmake_install.cmake")
   include("/home/yulin/swarm_ws/build/car_description/cmake_install.cmake")
+  include("/home/yulin/swarm_ws/build/car_teleop/cmake_install.cmake")
 
 endif()
 

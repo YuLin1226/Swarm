@@ -1,2 +1,2 @@
-car_control:car_description:car_gazebo
+car_control:car_description:car_gazebo:car_teleop
 -DCATKIN_DEVEL_PREFIX=/home/yulin/swarm_ws/devel -DCMAKE_INSTALL_PREFIX=/home/yulin/swarm_ws/install -G Unix Makefiles

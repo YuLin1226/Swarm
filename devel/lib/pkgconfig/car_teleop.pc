@@ -1,0 +1,8 @@
+prefix=/home/yulin/swarm_ws/devel
+
+Name: car_teleop
+Description: Description of car_teleop
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/yulin/swarm_ws/devel/lib 
+Requires: 
