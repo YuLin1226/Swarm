@@ -1,8 +1,0 @@
-prefix=/home/yulin/swarm_ws/install
-
-Name: car_gazebo
-Description: Description of car_gazebo
-Version: 0.0.0
-Cflags: 
-Libs: -L/home/yulin/swarm_ws/install/lib 
-Requires: 

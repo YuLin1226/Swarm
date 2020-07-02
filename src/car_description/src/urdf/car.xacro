@@ -23,7 +23,7 @@
      </xacro:macro>
 
     <!-- #### chassis property #### -->
-    <xacro:property name="chassis_length" value="0.3"/>
+    <xacro:property name="chassis_length" value="0.65"/>
     <xacro:property name="chassis_width" value="0.3"/>
     <xacro:property name="chassis_height" value="0.05"/>
 
@@ -33,7 +33,7 @@
     <xacro:property name="caster_mass" value="0.2"/>
 
 
-    <!-- #####  caster macro   ##### -->
+    <!-- #####  caster macro  ##### -->
 
     <xacro:macro name="caster" params= "prefix suffix X1 X2 Y1 Y2">
                      
@@ -120,6 +120,7 @@
       <origin xyz="0 0 0" rpy="1.57 0 0"/>
       <geometry>
           <mesh filename="package://car_description/src/meshes/right_tire.stl" scale="0.001 0.001 0.001"/>
+
       </geometry>
       <material name="dark"/>
     </visual>
@@ -172,7 +173,7 @@
       </inertial>
   </link>
 
-<!-- #### 4 casters  #### -->
+<!-- #### 4 casters #### -->
   <xacro:caster prefix="right" suffix="front" X1="0" X2="1" Y1="-1" Y2="0" />
   <xacro:caster prefix="right" suffix="back" X1="-1" X2="0" Y1="-1" Y2="0"/>
   <xacro:caster prefix="left" suffix="front" X1="0" X2="1" Y1="0" Y2="1"/>
@@ -180,52 +181,32 @@
 
 <!-- #### Sensors : Lidar #### -->
   
-  <joint name="scan_joint1" type="fixed">
-    <parent link="chassis"/>
-    <child link="scan_lidar"/>
-    <!-- <origin xyz="${chassis_length/2-0.03} ${chassis_width/2-0.03} 0.16" rpy="0 0 -${PI/2}"/> -->
-    <origin xyz="0 0 0.16" rpy="0 0 0"/>
-    
-  </joint>
 
-  <link name="scan_lidar">
-    <visual>
-      <origin xyz="0 0 -.06" rpy="${PI/2} 0 0"/>
-      <geometry>
-        <mesh filename="package://car_description/src/meshes/sensors/hokuyo_lidar.stl" scale="0.012 0.012 0.012"/>
-      </geometry>
-      <material name="black"/>
-    </visual>
+<!-- #####    END   ##### -->
+<!-- #####  A1 PART ##### -->
+<!-- #####    END   ##### -->
 
-    <collision>
-      <origin xyz="0 0 -.03" rpy="0 0 0"/>
-      <geometry>
-        <cylinder length="0.08" radius="0.025"/>
-      </geometry>
-    </collision>
-
-    <inertial>
-      <mass value="0.114" />
-      <origin xyz="0 0 0" />
-      <inertia ixx="0.001" ixy="0.0" ixz="0.0"
-               iyy="0.001" iyz="0.0"
-               izz="0.001" />
-    </inertial>
-  </link>
-
-  <gazebo>
-    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
-      <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
-      <legacyModeNS>true</legacyModeNS>
-    </plugin>
-  </gazebo>
+<gazebo>
+  <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+    <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
+    <legacyModeNS>true</legacyModeNS>
+  </plugin>
+</gazebo>
 
 
 
+<!-- #####   BEGIN  ##### -->
+<!-- #####  A2 PART ##### -->
+<!-- #####   BEGIN  ##### -->
 
+
+<!-- #####    END   ##### -->
+<!-- #####  A2 PART ##### -->
+<!-- #####    END   ##### -->
 
 
 <!-- Begin of camera -->
 
+<!-- End of camera -->
 
 </robot>
