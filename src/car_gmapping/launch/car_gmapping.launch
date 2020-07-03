@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+<launch>
+
+    <arg name="use_rviz" default="false" />
+	<arg name="use_teleop" default="true" /> 
+    <!-- teleop -->
+    <node pkg="car_teleop" type="teleop_key.py" name="teleop_ctrl" if="$(arg use_teleop)">
+        <remap from="/cmd_vel" to="/solamr_1/cmd_vel"/>
+    </node>
+
+    <!-- gmapping -->
+    <include file="$(find car_gmapping)/src/gmapping.xml" />
+    
+    <!-- Rviz -->
+    <!-- <node pkg="rviz" type="rviz" name="rviz" args="-d $(find solabot_navigation)/rviz_cfg/gmapping.rviz" if="$(arg use_rviz)"/> -->
+
+</launch>
