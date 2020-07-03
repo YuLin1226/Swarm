@@ -8,8 +8,10 @@ import rospy
 def add_two_ints_client(value, x, y):
     rospy.wait_for_service('pso_communication')
     try:
-        add_two_ints = rospy.ServiceProxy('pso_communication', getBest)
-        resp1 = add_two_ints(value, x, y)
+        resp = rospy.ServiceProxy('pso_communication', getBest)
+        resp_data = resp(value, x, y)
+        print("Global Best Value = %s"%resp_data.value)
+        print("Position : (%s,%s)"%(resp_data.position_x,resp_data.position_y))
         
     except rospy.ServiceException as e:
         print("Service call failed: %s"%e)
