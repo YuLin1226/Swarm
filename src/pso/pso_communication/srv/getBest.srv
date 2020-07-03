@@ -1,0 +1,9 @@
+# request
+float value
+float position_x
+float position_y
+---
+# response
+float value
+float position_x
+float position_y
