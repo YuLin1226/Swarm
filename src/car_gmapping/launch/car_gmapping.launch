@@ -11,6 +11,13 @@
 
     <!-- gmapping -->
     <include file="$(find car_gmapping)/src/gmapping.xml" />
+    <arg name="whitelist" default="good"/>
+
+    <!-- ekf -->
+    <node pkg="robot_localization" type="ekf_localization_node" name="ekf_se" clear_params="true">
+        <rosparam command="load" subst_value="True" file="$(find car_gmapping)/src/ekf_params.yaml" />
+    </node>
+
     
     <!-- Rviz -->
     <!-- <node pkg="rviz" type="rviz" name="rviz" args="-d $(find solabot_navigation)/rviz_cfg/gmapping.rviz" if="$(arg use_rviz)"/> -->
