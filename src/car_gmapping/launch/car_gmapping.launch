@@ -11,10 +11,11 @@
 
     <!-- gmapping -->
     <include file="$(find car_gmapping)/src/gmapping.xml" />
-    <arg name="whitelist" default="good"/>
-
+    
+    
+    <arg name="robot_num" default="solamr_1"/>
     <!-- ekf -->
-    <node pkg="robot_localization" type="ekf_localization_node" name="ekf_se" clear_params="true">
+    <node pkg="robot_localization" type="ekf_localization_node" name="ekf_se" clear_params="true" >
         <rosparam command="load" subst_value="True" file="$(find car_gmapping)/src/ekf_params.yaml" />
     </node>
 
