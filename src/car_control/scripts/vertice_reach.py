@@ -18,7 +18,8 @@ class Follower():
         # Define vertice
         self.vertice = [[3,3],[-3,3],[-3,-3],[3,-3]]
         self.vertice.append(self.vertice[0])
-        self.flag = 4
+        self.flag = 0
+        # self.target_period = 10
         # Define Car Position
         self.car_pose_x = 0
         self.car_pose_y = 0
@@ -51,6 +52,14 @@ class Follower():
         self.car_euler = tf.transformations.euler_from_quaternion(self.car_quaternion)
         self.car_pose_th = self.car_euler[2]
         self.car_twist_vx = odom_msg.twist.twist.linear.x
+        
+        # Switch Target Points
+        # if self.D < 0.5 and self.target_period >5:
+        #     self.cmd.linear.x  = 0
+        #     self.cmd.angular.z = 0
+        #     if self.flag < len(self.vertice) - 1:
+        #         self.flag = self.flag + 1
+
         self.calculate_cmd_vel(self.vertice[self.flag][0], self.vertice[self.flag][1])
         
         
@@ -66,10 +75,10 @@ class Follower():
 
         self.R = self.D / (2 * math.sin(self.theta))
         self.err = - ref + self.D
-        # Switch Target Points
+        
         
 
-        if abs(self.theta) < 30 * 3.1415926 / 180:
+        if abs(self.theta) < 15 * 3.1415926 / 180:
             self.v = self.v + self.err*(self.Kp + self.Ki*self.T/2) + self.err_last*(self.Ki*self.T/2 - self.Kp)
             self.w = self.v / self.R
             self.err_last = self.err
@@ -80,13 +89,14 @@ class Follower():
             self.cmd.angular.z = np.sign(self.theta)*0.1#(30/180*math.pi)
         
         if self.D < 0.3:
+            self.cmd.linear.x  = 0
+            self.cmd.angular.z = 0
             if self.flag < len(self.vertice) - 1:
                 self.flag = self.flag + 1
-                self.cmd.linear.x  = 0
-                self.cmd.angular.z = 0
+                
 
         self.vel_pub.publish(self.cmd)
-        # print("D: %s"%self.D)
+        print("D: %s"%self.D)
         # print("R: %s"%self.R)
         print("Heading: %s"%(self.car_pose_th/math.pi*180))
         print("Theta: %s"%(self.theta/math.pi*180))
