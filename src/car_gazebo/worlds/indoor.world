@@ -450,6 +450,60 @@
         <gravity>0</gravity>
       </link>
     </model>
+
+    <model name='wall_4'>
+      <pose frame=''>-2.5 -9.0 0.5 0 -0 0</pose>
+      <link name='link'>
+        <inertial>
+          <mass>100</mass>
+          <inertia>
+            <ixx>16.6667</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>16.6667</iyy>
+            <iyz>0</iyz>
+            <izz>16.6667</izz>
+          </inertia>
+        </inertial>
+        <collision name='collision'>
+          <geometry>
+            <box>
+              <size>0.5 2 1</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>0.5 2 1</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <name>Gazebo/Grey</name>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>0</gravity>
+      </link>
+    </model>
+
     <model name='wall_cylinder'>
       <pose frame=''>-4 -4 0.5 0 -0 0</pose>
       <link name='link'>
@@ -702,6 +756,18 @@
           <wrench>-0.004709 -9.78112 9.78158 0 -0 0</wrench>
         </link>
       </model>
+
+      <model name='wall_4'>
+        <pose frame=''>-2.5 -9.0 0.5 0 -0 0</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose frame=''>-2.5 -9.0 0.5 0 -0 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 0 0</acceleration>
+          <wrench>-0.004709 -9.78112 9.78158 0 -0 0</wrench>
+        </link>
+      </model>
+
       <model name='wall_cylinder'>
         <pose frame=''>-4 -4 0.5 0 -0 0</pose>
         <scale>1 1 1</scale>
