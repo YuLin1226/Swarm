@@ -37,7 +37,7 @@ class ICP_2D():
 
         # special reflection case
         if np.linalg.det(R) < 0:
-            VT[2,:] *= -1
+            VT[-1,:] *= -1
             R = np.dot(U, VT)
 
 
@@ -143,13 +143,20 @@ if __name__ == "__main__":
         range(20),
         range(10)+[10]*10
     ]).T
-    
+    # print(A.shape[0])
     
     rotz = lambda theta: np.array([ [np.cos(theta), -np.sin(theta)],
                                     [np.sin(theta), np.cos(theta) ]])
     trans = np.array([2.0, -1.0])
     B = A.dot( rotz(np.pi/4).T ) + trans
+
+    # B = np.array([
+    #     range(30),
+    #     range(10)+[8]*10+range(10,0,-1)
+    # ]).T
     
+    # print(B)
+
     TF_icp = ICP_2D()
 
     T, distances = TF_icp.icp(A, B)
@@ -170,16 +177,16 @@ if __name__ == "__main__":
     
     
 
-    np.set_printoptions(precision=3,suppress=True)
-    print("answer:")
-    print(T)
-    print("solution:")
-    print(T_sol)
+    # np.set_printoptions(precision=3,suppress=True)
+    # print("answer:")
+    # print(T)
+    # print("solution:")
+    # print(T_sol)
 
-    # TF_icp.plot_data(A, "black")
-    TF_icp.plot_data(B, "blue", "B")
-    TF_icp.plot_data(C, "red", "A'")
-    plt.legend()
-    plt.show()
+    # TF_icp.plot_data(A, "black", "A")
+    # TF_icp.plot_data(B, "blue", "B")
+    # TF_icp.plot_data(C, "red", "A'")
+    # plt.legend()
+    # plt.show()
 
     
