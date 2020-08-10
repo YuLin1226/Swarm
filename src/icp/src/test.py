@@ -1,8 +1,14 @@
 #!/usr/bin/env python
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import numpy as np
 
 
+
+x = []
+for i in range(10):
+    x.append([i,i])
+
+print(np.array(x))
 
 # x = np.linspace(0.5 , 3.5 , 100)
 # y = np.sin(x)
@@ -18,18 +24,18 @@ import numpy as np
 # for i, s in enumerate(x.T):
     # print(i,s)
 
-x = np.linspace(0, 10, 100)
-y = np.cos(x)
+# x = np.linspace(0, 10, 100)
+# y = np.cos(x)
 
-fig = plt.figure()
+# fig = plt.figure()
 
-for p in range(50):
-    p=3
-    updated_x=x+p
-    updated_y=np.cos(x)
-    plt.plot(updated_x,updated_y)
-    plt.draw()  
-    x=updated_x
-    y=updated_y
-    plt.pause(0.0002)
-    fig.clear()
+# for p in range(50):
+#     p=3
+#     updated_x=x+p
+#     updated_y=np.cos(x)
+#     plt.plot(updated_x,updated_y)
+#     plt.draw()  
+#     x=updated_x
+#     y=updated_y
+#     plt.pause(0.0002)
+#     fig.clear()
