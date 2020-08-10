@@ -212,30 +212,22 @@ if __name__ == "__main__":
     try:
         car1 = LiDAR_Association('/solamr_1/scan_lidar')
         # car2 = LiDAR_Association('/solamr_2/scan_lidar')
-        scan_last = np.array([])
-        print(len(scan_last))
         
+        scan_list = []
+        Edge = []
         while not rospy.is_shutdown():
-            is_empty_last = (len(scan_last) == 0)
-            is_empty_current = (len(car1.scan) == 0)
             
-            # scan_current = car1.scan 
+            scan_list.append(car1.scan)
             
-            if not is_empty_current and not is_empty_last:
-                print(car1.scan.shape, scan_last.shape)
-                T,_ = ICP().icp(car1.scan, scan_last)
-                print("======= ICP =======")
-                pose = t2v(T)
+            
+            if len(scan_list) >= 3:
+                    
+                A = scan_list[-1]
+                B = scan_list[-2]
                 
-                print("x: %f"%pose[0])
-                print("y: %f"%pose[1])
-                print("yaw: %f"%pose[2])
-            # print("======= current =====")
-            # print(car1.scan)
-            # print("======= last ======")
-            # print(scan_last)
-            # print("hello")
-            scan_last = car1.scan
+                T,_ = ICP().icp(A,B)
+                pose = t2v(T)
+                print(pose)
             rate.sleep()
 
         rospy.spin()
