@@ -7,8 +7,10 @@ import numpy as np
 x = []
 for i in range(10):
     x.append([i,i])
-
-print(np.array(x))
+y = [1,5,7]
+# y = np.array([1,5,7], dtype=int)
+print(np.array(x).T)
+print(np.array(x).T[:,y])
 
 # x = np.linspace(0.5 , 3.5 , 100)
 # y = np.sin(x)
