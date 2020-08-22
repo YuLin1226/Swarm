@@ -4,7 +4,7 @@
   <!-- <env name="GAZEBO_RESOURCE_PATH" value="$(find car_gazebo)/media/materials"/> -->
 
   <arg name="use_rviz" default="false" /> 
-  <arg name="use_teleop" default="true" /> 
+  <arg name="use_teleop" default="false" /> 
   <arg name="use_joy" default="false" /> 
   <arg name="use_lidar_detect" default="false" /> 
   <arg name="use_aruco_detect" default="true" /> 
