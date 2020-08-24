@@ -15,9 +15,9 @@ class Segment():
         
         '''
         self.d_thres = 5
-        self.d_break_thres = 10
+        self.d_break_thres = 1
         self.shape_thres = 0.07
-        self.R_thres = 50
+        self.R_thres = 1.5
         
         self.circle_thres = (math.pi/180)*60
         self.corner_thres = 0.7
@@ -74,6 +74,7 @@ class Segment():
             ym = np.mean(y)
 
             _, _, r = cal_circle([x0, xm, xn], [y0, ym, yn])
+            print("Segment Radius is %f"%r)
             if r > self.R_thres:
                 seg[i][2] = "line"
                 
@@ -323,9 +324,9 @@ if __name__ == "__main__":
         SEG.seg = SEG.classify_segment_type(SEG.seg)
         SEG.seg = SEG.corner_merger_operation(SEG.seg)
         landmark = SEG.do_landmark(SEG.seg)
-        print(SEG.seg[0][2])
-        print(SEG.seg[1][2])
-        print(SEG.seg[2][2])
+        # print(SEG.seg[0][2])
+        # print(SEG.seg[1][2])
+        # print(SEG.seg[2][2])
         print(landmark)
 
         plt.scatter(x, y, s=5, color="red")
