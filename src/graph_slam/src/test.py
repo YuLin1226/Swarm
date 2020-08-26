@@ -63,5 +63,55 @@ class LiDAR_Association():
 #         plt.show()
 #         pass
 
-Node = [[1,3,4],[2,2,2,2],[3,3,3,3,3,3],[]]
-print(len(Node))
+# # Define 2D List
+# data = []
+# for i in range(15):
+#     data.append([
+#         i+1, i+2
+#     ])
+# for i in range(5):
+#     data.append([
+#         3*i+1, 3*i+4
+#     ])
+# print("Init: ", data)
+# print("=============")
+
+# # Define start node and end node
+# start_node = 1
+# end_node = 13
+# print("Next Start Node: ", start_node)
+# print("End Node: ", end_node)
+# print("=============")
+
+# T_list = []
+
+# # Define while loop
+# while not start_node == end_node:
+#     # Define list x to store desired elements in list random.
+#     x = []
+#     for ind ,e in enumerate(data):
+#         if e[0] == start_node:
+#             x.append(data[ind])
+
+#     print("After Selection: ", x)
+#     print("=============")
+
+#     # Define list b to store 2nd element in list x. 
+#     # This will be used for finding the index of min and max in list x sorted by 2nd elements. 
+#     b = [i[1] for i in x]
+#     M = b.index(max(b))
+
+#     start_node = x[M][1]
+#     T_list.append(x[M])
+
+#     print("Next Start Node: ", start_node)
+#     print("End Node: ", end_node)
+#     print("=============")
+
+# print("T_new:", T_list)
+
+T = [
+    np.array([[1],[2],[3]]),np.array([[1],[2],[3]]),np.array([[1],[2],[3]]),np.array([[1],[2],[3]])
+]
+
+print(np.sum(T, axis=0))
