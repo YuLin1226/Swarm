@@ -3,6 +3,7 @@ import rospy
 import math
 import numpy as np
 import matplotlib.pyplot as plt
+import csv
 from sensor_msgs.msg import LaserScan # For subscribing Laser Scan
 from sklearn.neighbors import NearestNeighbors # For ICP
 from sensor_msgs.msg import JointState # For subscrbing JointState to compute odom
@@ -568,6 +569,7 @@ if __name__ == "__main__":
         
 
         while not rospy.is_shutdown():
+            # Store Node data
             Node_set.append([
                 node_id,
                 [car.b.x, car.b.y, car.b.yaw],
@@ -575,12 +577,32 @@ if __name__ == "__main__":
                 car.a.scan
             ])
             
-            Edge_set.append([
-                ,
-                node_id,
-                ,
-                Cov
-            ])
+
+            # Store Edge data with t = k & t = k - 1
+            if len(Node_set) >= 2:
+                # which should be first? Need check
+                A = Node_set[-2][3]
+                B = Node_set[-1][3]
+                
+                T,_ = ICP().icp(A,B)
+                pose = t2v(T)
+                Cov = np.array([
+                    [20,  0,     0],
+                    [ 0, 20,     0],
+                    [ 0,  0, 10000]
+                ])
+                Edge_set.append([
+                    Node_set[-2][0],
+                    Node_set[-1][0],
+                    pose,
+                    Cov
+                ])
+            
+            # Loop Closure
+            if 1:
+                
+            
+            
             node_id += 1
             rate.sleep()
             
