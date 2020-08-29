@@ -123,8 +123,8 @@ class Segment():
                     break
 
             if len(x) <= 2:
-                self.seg[-1][0] = self.seg[-1][0] + x
-                self.seg[-1][1] = self.seg[-1][1] + y
+                self.seg[-1][0] = np.hstack((self.seg[-1][0] , x)) 
+                self.seg[-1][1] = np.hstack((self.seg[-1][1] , x))
                 break
     
     def classify_segment_type(self, seg):
@@ -529,7 +529,6 @@ def t2v(T):
     v[2, 0] = math.atan2(T[0,1], T[0,0])
     return v
 
-
 def v2t(vector):
     '''(Done)
     vector to homogeneous transformation
@@ -555,9 +554,9 @@ def v2t(vector):
 # Main Class
 class CAR():
     def __init__(self, topic='/solamr_1/scan_lidar'):
-        self.a = LiDAR_Association(topic)
-        self.b = ODOM()
-        self.c = ICP()
+        self.lidar = LiDAR_Association(topic)
+        self.odom = ODOM()
+        # self.scan_icp = ICP()
 
 if __name__ == "__main__":
     rospy.init_node('SLAM_Infomation_Construction', anonymous=True)
@@ -581,7 +580,7 @@ if __name__ == "__main__":
         Node_set = []
         Edge_set = []
         
-        node_id = -1
+        node_id = -5
         
         car = CAR('/solamr_1/scan_lidar')
         
@@ -592,13 +591,15 @@ if __name__ == "__main__":
 
         while not rospy.is_shutdown():
             # Store Node data
-            Node_set.append([
-                node_id,
-                [car.b.x, car.b.y, car.b.yaw],
-                car.a.landmark,
-                car.a.scan
-            ])
-            
+            if node_id > -1:
+                Node_set.append([
+                    node_id,
+                    [car.odom.x, car.odom.y, car.odom.yaw],
+                    car.lidar.landmark,
+                    car.lidar.scan
+                ])
+                # print(Node_set[-1][0])
+                # print("===================")
 
             # Store Edge data with t = k & t = k - 1
             if len(Node_set) >= 2:
@@ -620,60 +621,74 @@ if __name__ == "__main__":
                     Cov
                 ])
             
-            # Loop Closure
-            candidate = []
-            for ind ,node in enumerate(Node_set):
-                # Same Landmark & Node Interval > 10
-                if (node[2] == Node_set[-1][2]) and (Node_set[-1][0] - node[0] > 10):
-                    # candidate.append(Node_set[ind])
-                    A = node[3]
-                    B = Node_set[-1][3]
-                    T,_ = ICP().icp(A,B)
+                # print(Edge_set[-1])
+                # print("===================")
+
+            
+            
+                # Loop Closure
+                # candidate = []
+                for ind ,node in enumerate(Node_set):
+                    # Same Landmark & Node Interval > 10
+                    if (node[2] == Node_set[-1][2]) and (Node_set[-1][0] - node[0] > 10):
+                        # candidate.append(Node_set[ind])
+                        A = node[3]
+                        B = Node_set[-1][3]
+                        T,_ = ICP().icp(A,B)
+                        pose = t2v(T)
+                        # Define the node from & node to
+                        start_node = node[0]
+                        end_node = Node_set[-1][0]
+                        edge_cond_list = []
+
+
+                        while not start_node == end_node:
+                            # Define a tmp list to store the info with 1st element being start_node, node from.
+                            edge_tmp = []
+                            for ind ,e in enumerate(Edge_set):
+                                if e[0] == start_node:
+                                    edge_tmp.append(Edge_set[ind])
+
+                            # Define a list b to store 2nd element (node_to) in edge_tmp.
+                            # This is used for finding the index of maximal node_to (M) in edge_tmp.
+                            b = [i[1] for i in edge_tmp]
+                            M = b.index(max(b))
+
+                            # Update start_node
+                            start_node = edge_tmp[M][1]
+
+                            # Store relative pose in edge_cond_list for later checking the T and T_new
+                            edge_cond_list.append(edge_tmp[M])
+
+                        pose_cond = [i[2] for i in edge_cond_list]
+                        pose_new = np.sum(pose_cond, axis=0)
+                        T_new = v2t(pose_new)
+                        
+                        # Check T & T_new
+                        unit_vector = np.array([
+                            [1],
+                            [1],
+                            [1]
+                        ])
+                        
+                        del_vector = (T - T_new).dot(unit_vector)
+                        print(del_vector)
+                        if (del_vector[0]**2 + del_vector[1]**2 + del_vector[2]**2)**0.5 < 5:
+                            
+                            Edge_set.append([
+                                node[0],
+                                Node_set[-1][0],
+                                pose,
+                                Cov
+                            ])
+                            print("Loop Closure Success !!")
+                            # print(Edge_set[-1])
+                            
+                            break
+                        else:
+                            print("Loop Closure Failed !!")
                     
-                    # Define the node from & node to
-                    start_node = node[0]
-                    end_node = Node_set[-1][0]
-                    edge_cond_list = []
-
-
-                    while not start_node == end_node:
-                        # Define a tmp list to store the info with 1st element being start_node, node from.
-                        edge_tmp = []
-                        for ind ,e in enumerate(Edge_set):
-                            if e[0] == start_node:
-                                edge_tmp.append(Edge_set[ind])
-
-                        # Define a list b to store 2nd element (node_to) in edge_tmp.
-                        # This is used for finding the index of maximal node_to (M) in edge_tmp.
-                        b = [i[1] for i in edge_tmp]
-                        M = b.index(max(b))
-
-                        # Update start_node
-                        start_node = edge_tmp[M][1]
-
-                        # Store relative pose in edge_cond_list for later checking the T and T_new
-                        edge_cond_list.append(edge_tmp[M])
-
-                    pose_cond = [i[2] for i in edge_cond_list]
-                    pose_new = np.sum(pose_cond, axis=0)
-                    T_new = v2t(pose_new)
-                    
-                    # Check T & T_new
-                    T_test = T - T_new
-                    unit_vector = np.array([
-                        [1],
-                        [1],
-                        [1]
-                    ])
-                    
-                    del_vector = T_test.dot(unit_vector) - unit_vector
-                    if (del_vector[0]**2 + del_vector[1]**2 + del_vector[2]**2)**0.5 < 1:
-                        print("Loop Closure Success !!")
-                        break
-                    else:
-                        print("Loop Closure Failed !!")
-                
-                    
+                        
 
                     
             

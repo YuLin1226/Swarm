@@ -39,29 +39,29 @@ class LiDAR_Association():
         # print(np.array(point).shape)
 
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
 
-    rospy.init_node('node_edge_construction', anonymous=True)
+#     rospy.init_node('node_edge_construction', anonymous=True)
 
-    try:
-        car1 = LiDAR_Association('/solamr_1/scan_lidar')
-        rospy.spin()
+#     try:
+#         car1 = LiDAR_Association('/solamr_1/scan_lidar')
+#         rospy.spin()
 
-    except KeyboardInterrupt:
-        pass
+#     except KeyboardInterrupt:
+#         pass
 
-    finally:
-        data = car1.po[-1]
-        x = []
-        y = []
-        for ind, dist in enumerate(data):
-            x.append(ind)
-            y.append(dist)
-        # x = np.array(x)
-        # y
-        plt.scatter(x,y, s=5, color="red")
-        plt.show()
-        pass
+#     finally:
+#         data = car1.po[-1]
+#         x = []
+#         y = []
+#         for ind, dist in enumerate(data):
+#             x.append(ind)
+#             y.append(dist)
+#         # x = np.array(x)
+#         # y
+#         plt.scatter(x,y, s=5, color="red")
+#         plt.show()
+#         pass
 
 # # Define 2D List
 # data = []
@@ -115,3 +115,5 @@ if __name__ == "__main__":
 # ]
 
 # print(np.sum(T, axis=0))
+
+x = np.array([1,1,1,1,1,1])
