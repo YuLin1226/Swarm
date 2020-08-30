@@ -673,7 +673,7 @@ if __name__ == "__main__":
                         
                         del_vector = (T - T_new).dot(unit_vector)
                         print(del_vector)
-                        if (del_vector[0]**2 + del_vector[1]**2 + del_vector[2]**2)**0.5 < 5:
+                        if (del_vector[0]**2 + del_vector[1]**2 + del_vector[2]**2)**0.5 < 1.0:
                             
                             Edge_set.append([
                                 node[0],
