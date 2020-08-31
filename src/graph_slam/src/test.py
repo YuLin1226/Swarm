@@ -116,4 +116,13 @@ class LiDAR_Association():
 
 # print(np.sum(T, axis=0))
 
-x = np.array([1,1,1,1,1,1])
+X = []
+for i in range(10):
+    X.append([
+        i,
+        i,
+        []
+    ])
+
+for i in range(len(X)):
+    print(i)

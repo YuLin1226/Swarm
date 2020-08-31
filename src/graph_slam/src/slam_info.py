@@ -110,23 +110,34 @@ class Segment():
                 d_conti = cal_dist( x[L] , y[L] , x[L+1] , y[L+1] )
                 d_sum   = d_sum + d_conti
                 
-                if (d_sum - d) > self.d_thres or L == (len(x) - 1) or d_conti > self.d_break_thres:
+                if (d_sum - d) > self.d_thres or d_conti > self.d_break_thres:
                     
-                    self.seg.append([
-                        x[0:L+1],
-                        y[0:L+1],
-                        []
-                    ])
+                    # If number of a seg is too less, then it won't form a seg.
+                    # 因為相鄰太遠的點也會想要形成seg, 但很多情況下此seg僅有一個元素. 
+                    if len(x[0:L+1]) < 5:
+                        pass
+                    else:
+                        self.seg.append([
+                            x[0:L+1],
+                            y[0:L+1],
+                            []
+                        ])
                     x = x[L+1 : len(x)]
                     y = y[L+1 : len(y)]
 
                     break
 
-            if len(x) <= 2:
+
+            if len(x) <= 5:
                 self.seg[-1][0] = np.hstack((self.seg[-1][0] , x)) 
-                self.seg[-1][1] = np.hstack((self.seg[-1][1] , x))
+                self.seg[-1][1] = np.hstack((self.seg[-1][1] , y))
                 break
-    
+        
+        # print("=== First segmentation done, result is : ===")
+        # for i in range(len(self.seg)):
+        #     print(len(self.seg[i][0]))
+        
+
     def classify_segment_type(self, seg):
         
         # for loop : "number of row" times
@@ -155,8 +166,8 @@ class Segment():
                 
     def corner_merger_operation(self, seg):
         k = 0
-        i = 0
-        for i in range(len(seg) - 1):
+        i = -1
+        for j in range(len(seg) - 1):
             
             i = i + 1 + k
             k = 0
@@ -174,7 +185,7 @@ class Segment():
             # x2m = np.mean(x2)
             # y2m = np.mean(y2)
 
-            val = cal_acos([ x1[-1] - x1[0], y1[-1] - y1[0] ], [x2[-1] - x2[0], y2[-1] - y2[0]])
+            val = cal_acos([ x1[-1] - x1[0], y1[-1] - y1[0] ], [ x2[-1] - x2[0], y2[-1] - y2[0] ])
 
             if seg[i][2] == "circle":
             
@@ -463,7 +474,9 @@ def cal_acos(v1, v2):
     '''
     d1 = (v1[0]**2 + v1[1]**2)**(0.5)
     d2 = (v2[0]**2 + v2[1]**2)**(0.5)
-    
+    # print("d1:%f"%d1)
+    # print("d2:%f"%d2)
+
     value = math.acos( (v1[0]*v2[0]+v1[1]*v2[1])/(d1*d2) )
     return value
 
@@ -490,10 +503,18 @@ def cal_circle(x, y):
         [ x[2]**2 + y[2]**2 ]
     ])
 
-    X = np.linalg.solve(A, B)
-    xc = X[0]
-    yc = X[1]
-    R  = ( X[2] + xc**2 + yc**2 )**(0.5)
+    if abs(np.linalg.det(A)) < 0.0001:
+        xc = None
+        yc = None
+        R = 100000
+         
+    
+    else:
+        X = np.linalg.solve(A, B)
+        xc = X[0]
+        yc = X[1]
+        R  = ( X[2] + xc**2 + yc**2 )**(0.5)
+
     return xc, yc, R
 
 def cal_dist(xi, yi, xf, yf):
@@ -590,6 +611,10 @@ if __name__ == "__main__":
         
 
         while not rospy.is_shutdown():
+
+
+            # print(car.lidar.scan)
+
             # Store Node data
             if node_id > -1:
                 Node_set.append([
@@ -672,7 +697,7 @@ if __name__ == "__main__":
                         ])
                         
                         del_vector = (T - T_new).dot(unit_vector)
-                        print(del_vector)
+                        # print(del_vector)
                         if (del_vector[0]**2 + del_vector[1]**2 + del_vector[2]**2)**0.5 < 1.0:
                             
                             Edge_set.append([
