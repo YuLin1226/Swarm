@@ -279,7 +279,8 @@ class Segment():
 class LiDAR_Association():
 
     def __init__(self, topic_name='/solamr_1/scan_lidar'):
-    
+        self.landmark = None
+        self.scan = None
         rospy.Subscriber(topic_name, LaserScan, self.get_lidar)
         
     def get_lidar(self, msg):
@@ -601,7 +602,7 @@ if __name__ == "__main__":
         Node_set = []
         Edge_set = []
         
-        node_id = -5
+        node_id = 0
         
         car = CAR('/solamr_1/scan_lidar')
         
@@ -612,115 +613,107 @@ if __name__ == "__main__":
 
         while not rospy.is_shutdown():
 
+            while not car.lidar.landmark == None: 
+                # print("while loop is running now !!")
 
-            # print(car.lidar.scan)
-
-            # Store Node data
-            if node_id > -1:
+                # Store Node data
                 Node_set.append([
                     node_id,
                     [car.odom.x, car.odom.y, car.odom.yaw],
                     car.lidar.landmark,
                     car.lidar.scan
                 ])
-                # print(Node_set[-1][0])
+                # print(Node_set[-1][1])
                 # print("===================")
-
-            # Store Edge data with t = k & t = k - 1
-            if len(Node_set) >= 2:
-                # which should be first? Need check
-                A = Node_set[-2][3]
-                B = Node_set[-1][3]
                 
-                T,_ = ICP().icp(A,B)
-                pose = t2v(T)
-                Cov = np.array([
-                    [20,  0,     0],
-                    [ 0, 20,     0],
-                    [ 0,  0, 10000]
-                ])
-                Edge_set.append([
-                    Node_set[-2][0],
-                    Node_set[-1][0],
-                    pose,
-                    Cov
-                ])
-            
-                # print(Edge_set[-1])
-                # print("===================")
+                # Store Edge data with t = k & t = k - 1
+                if len(Node_set) >= 2:
+                    # which should be first? Need check
+                    A = Node_set[-2][3]
+                    B = Node_set[-1][3]
+                    
+                    T,_ = ICP().icp(A,B)
+                    pose = t2v(T)
+                    Cov = np.array([
+                        [20,  0,     0],
+                        [ 0, 20,     0],
+                        [ 0,  0, 10000]
+                    ])
+                    Edge_set.append([
+                        Node_set[-2][0],
+                        Node_set[-1][0],
+                        pose,
+                        Cov
+                    ])
+                
+                    # print(Edge_set[-1])
+                    # print("===================")
 
-            
-            
-                # Loop Closure
-                # candidate = []
-                for ind ,node in enumerate(Node_set):
-                    # Same Landmark & Node Interval > 10
-                    if (node[2] == Node_set[-1][2]) and (Node_set[-1][0] - node[0] > 10):
-                        # candidate.append(Node_set[ind])
-                        A = node[3]
-                        B = Node_set[-1][3]
-                        T,_ = ICP().icp(A,B)
-                        pose = t2v(T)
-                        # Define the node from & node to
-                        start_node = node[0]
-                        end_node = Node_set[-1][0]
-                        edge_cond_list = []
+                
+                
+                    # Loop Closure
+                    # candidate = []
+                    for ind ,node in enumerate(Node_set):
+                        # Same Landmark & Node Interval > 10
+                        if (node[2] == Node_set[-1][2]) and (Node_set[-1][0] - node[0] > 10):
+                            # candidate.append(Node_set[ind])
+                            A = node[3]
+                            B = Node_set[-1][3]
+                            T,_ = ICP().icp(A,B)
+                            pose = t2v(T)
+                            # Define the node from & node to
+                            start_node = node[0]
+                            end_node = Node_set[-1][0]
+                            edge_cond_list = []
 
 
-                        while not start_node == end_node:
-                            # Define a tmp list to store the info with 1st element being start_node, node from.
-                            edge_tmp = []
-                            for ind ,e in enumerate(Edge_set):
-                                if e[0] == start_node:
-                                    edge_tmp.append(Edge_set[ind])
+                            while not start_node == end_node:
+                                # Define a tmp list to store the info with 1st element being start_node, node from.
+                                edge_tmp = []
+                                for ind ,e in enumerate(Edge_set):
+                                    if e[0] == start_node:
+                                        edge_tmp.append(Edge_set[ind])
 
-                            # Define a list b to store 2nd element (node_to) in edge_tmp.
-                            # This is used for finding the index of maximal node_to (M) in edge_tmp.
-                            b = [i[1] for i in edge_tmp]
-                            M = b.index(max(b))
+                                # Define a list b to store 2nd element (node_to) in edge_tmp.
+                                # This is used for finding the index of maximal node_to (M) in edge_tmp.
+                                b = [i[1] for i in edge_tmp]
+                                M = b.index(max(b))
 
-                            # Update start_node
-                            start_node = edge_tmp[M][1]
+                                # Update start_node
+                                start_node = edge_tmp[M][1]
 
-                            # Store relative pose in edge_cond_list for later checking the T and T_new
-                            edge_cond_list.append(edge_tmp[M])
+                                # Store relative pose in edge_cond_list for later checking the T and T_new
+                                edge_cond_list.append(edge_tmp[M])
 
-                        pose_cond = [i[2] for i in edge_cond_list]
-                        pose_new = np.sum(pose_cond, axis=0)
-                        T_new = v2t(pose_new)
-                        
-                        # Check T & T_new
-                        unit_vector = np.array([
-                            [1],
-                            [1],
-                            [1]
-                        ])
-                        
-                        del_vector = (T - T_new).dot(unit_vector)
-                        # print(del_vector)
-                        if (del_vector[0]**2 + del_vector[1]**2 + del_vector[2]**2)**0.5 < 1.0:
+                            pose_cond = [i[2] for i in edge_cond_list]
+                            pose_new = np.sum(pose_cond, axis=0)
+                            T_new = v2t(pose_new)
                             
-                            Edge_set.append([
-                                node[0],
-                                Node_set[-1][0],
-                                pose,
-                                Cov
+                            # Check T & T_new
+                            unit_vector = np.array([
+                                [1],
+                                [1],
+                                [1]
                             ])
-                            print("Loop Closure Success !!")
-                            # print(Edge_set[-1])
                             
-                            break
-                        else:
-                            print("Loop Closure Failed !!")
-                    
-                        
-
-                    
+                            del_vector = (T - T_new).dot(unit_vector)
             
-            
-            node_id += 1
-            rate.sleep()
-            
+                            if (del_vector[0]**2 + del_vector[1]**2 + del_vector[2]**2)**0.5 < 1.0:
+                                
+                                Edge_set.append([
+                                    node[0],
+                                    Node_set[-1][0],
+                                    pose,
+                                    Cov
+                                ])
+                                print("Loop Closure Success !!")
+                                
+                                break
+                            else:
+                                print("Loop Closure Failed !!")
+                
+                node_id += 1
+                rate.sleep()
             
         rospy.spin()
 
