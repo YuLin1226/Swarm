@@ -614,7 +614,7 @@ if __name__ == "__main__":
         while not rospy.is_shutdown():
 
             while not car.lidar.landmark == None: 
-                # print("while loop is running now !!")
+                print("while loop is running now !!")
 
                 # Store Node data
                 Node_set.append([
@@ -623,8 +623,8 @@ if __name__ == "__main__":
                     car.lidar.landmark,
                     car.lidar.scan
                 ])
-                # print(Node_set[-1][1])
-                # print("===================")
+                print(Node_set[-1][1])
+                print("===================")
                 
                 # Store Edge data with t = k & t = k - 1
                 if len(Node_set) >= 2:
@@ -715,7 +715,7 @@ if __name__ == "__main__":
                 node_id += 1
                 rate.sleep()
             
-        rospy.spin()
+        # rospy.spin()
 
     except KeyboardInterrupt:
         pass
