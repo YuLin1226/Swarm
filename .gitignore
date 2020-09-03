@@ -1,3 +1,4 @@
 # Ignore build & devel folder
 build
 devel
+*.bag

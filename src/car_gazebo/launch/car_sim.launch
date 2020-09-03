@@ -13,8 +13,9 @@
 
   <!-- We resume the logic in empty_world.launch, changing only the name of the world to be launched -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
-    <arg name="world_name" value="$(find car_gazebo)/worlds/indoor.world"/>
+    <!-- <arg name="world_name" value="$(find car_gazebo)/worlds/indoor.world"/> -->
     <!-- <arg name="world_name" value="$(find car_gazebo)/worlds/small.world"/> -->
+    <arg name="world_name" value="$(find car_gazebo)/worlds/test.world"/>
     <arg name="paused" value="false"/>
     <arg name="use_sim_time" value="true"/>
     <arg name="gui" value="$(arg gazebo_gui)"/>
@@ -35,7 +36,7 @@
       <!-- interpret xacro into urdf-->
       <param name="robot_description" command="$(find xacro)/xacro --inorder $(find car_description)/src/urdf/carA.xacro robotName:=$(arg robot_name)" />
       <!-- spawn model from parameter server : robot_description -->
-      <node pkg="gazebo_ros" type="spawn_model" name="spawn_urdf_$(arg robot_name)" args="-urdf -model $(arg robot_name) -x 0 -y -6 -z 0 -Y -3.14 -param robot_description" />
+      <node pkg="gazebo_ros" type="spawn_model" name="spawn_urdf_$(arg robot_name)" args="-urdf -model $(arg robot_name) -x 0 -y 0 -z 0 -Y -3.14 -param robot_description" />
       <!-- control file: controller spawner, robot_state_publisher -->
       <include file="$(find car_control)/launch/car_control.launch">
           <arg name="robot_ns" value="$(arg robot_name)" />
