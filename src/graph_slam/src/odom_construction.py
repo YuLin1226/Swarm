@@ -6,6 +6,8 @@ import numpy as np
 # from std_msgs.msg import Float64
 # from nav_msgs.msg import Odometry
 from sensor_msgs.msg import JointState
+from sensor_msgs import Imu
+import matplotlib.pyplot as plt
 # import geometry_msgs.msg
 
 class ODOM():
@@ -33,15 +35,23 @@ class ODOM():
         self.y = 0
         self.yaw = 0
 
+        # 
+        self.x_list = []
+        self.y_list = []
+
         # rospy
         self.r = rospy.Rate(10)
         rospy.Subscriber('/solamr_1/joint_states', JointState, self.get_encoder)
+        # rospy.Subscriber('/solamr_1/imu', Imu, self.get_imu)
 
         # while not rospy.is_shutdown():
         #     pass
         #     self.r.sleep()
 
-        rospy.spin()
+
+    def get_imu(self, msg):
+        wz = msg.angular_velocity.z
+        ax = msg.linear_acceleration.x
 
     def get_encoder(self, msg):
         dt = 1 / 30.0
@@ -68,7 +78,11 @@ class ODOM():
         self.y += vx * math.sin(self.yaw) * dt
         self.yaw += wz * dt
 
-        # print(self.x)
+        self.x_list.append(self.x)
+        self.y_list.append(self.y)
+
+        print("x:%f"%self.x)
+        print("y:%f"%self.y)
 
         
     def lowpass_filter(self, data_list):
@@ -85,11 +99,25 @@ class ODOM():
 
 
 if __name__ == '__main__':
+
+    # x = []
+    # y = []
+    a = ODOM()
     try:
-        a = ODOM()
+        
+        # while not rospy.is_shutdown():
+        #     x.append(a.x)
+        #     y.append(a.y)
+        rospy.spin()
 
     except KeyboardInterrupt:
         pass
 
     finally:
         pass
+        plt.figure()
+        plt.xlim((-10, 30))
+        plt.ylim((-10, 30))
+        plt.plot(a.x_list, a.y_list)
+        # plt.scatter(a.x_list, a.y_list, s=2)
+        plt.show()
