@@ -4,10 +4,11 @@ import rospy
 import math
 import numpy as np
 # from std_msgs.msg import Float64
-# from nav_msgs.msg import Odometry
+from nav_msgs.msg import Odometry
 from sensor_msgs.msg import JointState
-from sensor_msgs import Imu
+# from sensor_msgs import Imu
 import matplotlib.pyplot as plt
+from geometry_msgs.msg import Point, Pose, Quaternion, Twist, Vector3
 # import geometry_msgs.msg
 
 class ODOM():
@@ -20,7 +21,7 @@ class ODOM():
         
         # Parameters of the hardware
         self.wheel_radius = 0.033
-        self.car_width = 0.3
+        self.wheel_dist = 0.2
 
         # Init encoder value
         self.enc_Left = 0
@@ -43,11 +44,20 @@ class ODOM():
         self.r = rospy.Rate(10)
         rospy.Subscriber('/solamr_1/joint_states', JointState, self.get_encoder)
         # rospy.Subscriber('/solamr_1/imu', Imu, self.get_imu)
+        self.odom_pub = rospy.Publisher("/solamr_1/wheel_odom", Odometry, queue_size=50)
 
         # while not rospy.is_shutdown():
         #     pass
         #     self.r.sleep()
 
+    def publish_odom(self, vx, wz):
+        current_time = rospy.Time.now()
+        odom = Odometry()
+        odom.header.stamp = current_time
+        odom.header.frame_id = "odom"
+        odom.child_frame_id = "base_link"
+        odom.twist.twist = Twist(Vector3(vx, 0, 0), Vector3(0, 0, wz))
+        self.odom_pub.publish(odom)
 
     def get_imu(self, msg):
         wz = msg.angular_velocity.z
@@ -57,8 +67,8 @@ class ODOM():
         dt = 1 / 30.0
         fs = 30.0
 
-        enc_L = msg.position[0]
-        enc_R = msg.position[1]
+        enc_L = msg.position[1]
+        enc_R = msg.position[0]
 
         omega_L = (enc_L - self.enc_Left)  *fs
         omega_R = (enc_R - self.enc_Right) *fs
@@ -74,6 +84,8 @@ class ODOM():
 
         vx, wz = self.cal_twitst(omega_R, omega_L)
 
+        self.publish_odom(vx, wz)
+
         self.x += vx * math.cos(self.yaw) * dt
         self.y += vx * math.sin(self.yaw) * dt
         self.yaw += wz * dt
@@ -81,8 +93,8 @@ class ODOM():
         self.x_list.append(self.x)
         self.y_list.append(self.y)
 
-        print("x:%f"%self.x)
-        print("y:%f"%self.y)
+        # print("x:%f"%self.x)
+        # print("y:%f"%self.y)
 
         
     def lowpass_filter(self, data_list):
@@ -92,8 +104,8 @@ class ODOM():
     def cal_twitst(self, wR, wL):
 
         vx = (wR + wL)/2 * self.wheel_radius
-        wz = (wR - wL)/2 * self.wheel_radius / self.car_width
-
+        wz = (wR - wL) * self.wheel_radius / self.wheel_dist
+        
         return vx, wz
         
 
@@ -115,9 +127,9 @@ if __name__ == '__main__':
 
     finally:
         pass
-        plt.figure()
-        plt.xlim((-10, 30))
-        plt.ylim((-10, 30))
-        plt.plot(a.x_list, a.y_list)
-        # plt.scatter(a.x_list, a.y_list, s=2)
-        plt.show()
+        # plt.figure()
+        # plt.xlim((-10, 30))
+        # plt.ylim((-10, 30))
+        # plt.plot(a.x_list, a.y_list)
+        # # plt.scatter(a.x_list, a.y_list, s=2)
+        # plt.show()
