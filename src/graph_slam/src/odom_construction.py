@@ -9,7 +9,7 @@ from sensor_msgs.msg import JointState
 # from sensor_msgs import Imu
 import matplotlib.pyplot as plt
 from geometry_msgs.msg import Point, Pose, Quaternion, Twist, Vector3
-# import geometry_msgs.msg
+import tf
 
 class ODOM():
     def __init__(self):
@@ -42,6 +42,7 @@ class ODOM():
 
         # rospy
         self.r = rospy.Rate(10)
+        self.odom_broadcaster = tf.TransformBroadcaster()
         rospy.Subscriber('/solamr_1/joint_states', JointState, self.get_encoder)
         # rospy.Subscriber('/solamr_1/imu', Imu, self.get_imu)
         self.odom_pub = rospy.Publisher("/solamr_1/wheel_odom", Odometry, queue_size=50)
@@ -54,9 +55,13 @@ class ODOM():
         current_time = rospy.Time.now()
         odom = Odometry()
         odom.header.stamp = current_time
-        odom.header.frame_id = "odom"
-        odom.child_frame_id = "base_link"
+        odom.header.frame_id = "solamr_1/odom"
+        odom.child_frame_id = "solamr_1/base_footprint"
         odom.twist.twist = Twist(Vector3(vx, 0, 0), Vector3(0, 0, wz))
+
+        odom_quat = tf.transformations.quaternion_from_euler(0, 0, self.yaw)
+        odom.pose.pose = Pose(Point(self.x, self.y, 0.), Quaternion(*odom_quat))
+
         self.odom_pub.publish(odom)
 
     def get_imu(self, msg):
