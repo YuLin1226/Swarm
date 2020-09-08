@@ -34,7 +34,7 @@ class ODOM():
         # Pose
         self.x = 0
         self.y = 0
-        self.yaw = 0
+        self.yaw = -3.14
 
         # 
         self.x_list = []
@@ -113,7 +113,8 @@ class ODOM():
         
         return vx, wz
         
-
+    
+            
 
 if __name__ == '__main__':
 
@@ -132,9 +133,9 @@ if __name__ == '__main__':
 
     finally:
         pass
-        # plt.figure()
-        # plt.xlim((-10, 30))
-        # plt.ylim((-10, 30))
-        # plt.plot(a.x_list, a.y_list)
-        # # plt.scatter(a.x_list, a.y_list, s=2)
-        # plt.show()
+        plt.figure()
+        plt.xlim((-7, 7))
+        plt.ylim((-7, 7))
+        plt.plot(a.x_list, a.y_list)
+        # plt.scatter(a.x_list, a.y_list, s=2)
+        plt.show()
