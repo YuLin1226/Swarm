@@ -359,7 +359,7 @@ class ICP():
         B: Nx2 numpy array of corresponding 3D points
         Returns:
         T: 3x3 homogeneous transformation matrix
-        R: 2x2 rotation matrix >> theta = acos( R(0,0), R(1,0) )
+        R: 2x2 rotation matrix >> theta = atan2( R(1,0), R(0,0) ) = atan2( sin, cos)
         t: 2x1 column vector
         '''
         
@@ -591,7 +591,8 @@ def t2v(T):
     '''
     v = np.zeros((3,1))
     v[0:2, 0] = T[0:2, 2]
-    v[2, 0] = math.atan2(T[0,1], T[0,0])
+    # v[2, 0] = math.atan2(T[0,1], T[0,0])
+    v[2, 0] = math.atan2(T[1,0], T[0,0])
     return v
 
 def v2t(vector):
