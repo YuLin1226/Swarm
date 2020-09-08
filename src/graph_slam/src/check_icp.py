@@ -352,14 +352,13 @@ class ICP():
 
     def best_fit_transform(self, A, B):
         '''
-        Calculates the least-squares best-fit transform between corresponding 2D points A->B.
-        B = Rot*A + Trans
+        Calculates the least-squares best-fit transform between corresponding 2D points A->B
         Input:
         A: Nx2 numpy array of corresponding 3D points
         B: Nx2 numpy array of corresponding 3D points
         Returns:
         T: 3x3 homogeneous transformation matrix
-        R: 2x2 rotation matrix >> theta = acos( R(0,0), R(1,0) )
+        R: 2x2 rotation matrix
         t: 2x1 column vector
         '''
         
@@ -957,7 +956,7 @@ class CAR():
 
 if __name__ == "__main__":
     rospy.init_node('SLAM_Infomation_Construction', anonymous=True)
-    rate = rospy.Rate(1)
+    rate = rospy.Rate(5)
 
     try:
         # List Set
@@ -984,7 +983,8 @@ if __name__ == "__main__":
         scan_list = []
         Edge = []
 
-        
+        x = [0]
+        y = [0]
 
         while not rospy.is_shutdown():
         
@@ -1009,7 +1009,7 @@ if __name__ == "__main__":
                     A = Node_set[-2][5]
                     B = Node_set[-1][5]
                     
-                    T,_ = ICP().icp(A,B)
+                    T,_ = ICP().icp(B,A)
                     pose = t2v(T)
                     Cov = np.array([
                         [20,  0,     0],
@@ -1022,12 +1022,13 @@ if __name__ == "__main__":
                         pose,
                         Cov
                     ])
-                
+                    x.append(x[-1] + Edge_set[-1][2][0])
+                    y.append(y[-1] + Edge_set[-1][2][1])
                     # print(Edge_set[-1])
                     # print("===================")
 
                 
-                # '''
+                '''
                     # Loop Closure
                     # candidate = []
                     for ind ,node in enumerate(Node_set):
@@ -1089,7 +1090,7 @@ if __name__ == "__main__":
                             else:
                                 print("Loop Closure Failed !!")
                                 pass
-                # '''
+                '''
 
 
                 if node_id > 160:
@@ -1106,16 +1107,16 @@ if __name__ == "__main__":
     finally:
         pass
         print("Done Collecting Data.")
-        a = PoseGraph()
-        a.create_zero_constructor(Node_set, Edge_set)
-        a.optimize(20)
+        # a = PoseGraph()
+        # a.create_zero_constructor(Node_set, Edge_set)
+        # a.optimize(20)
 
         # By wheel odom
         # x = [i[1] for i in Node_set]
         # y = [i[2] for i in Node_set]
-        # plt.figure()
-        # plt.xlim((-7, 7))
-        # plt.ylim((-7, 7))
-        # plt.plot(x, y)
-        # # plt.scatter(a.x_list, a.y_list, s=2)
-        # plt.show()
+        plt.figure()
+        plt.xlim((-7, 7))
+        plt.ylim((-7, 7))
+        plt.plot(x, y)
+        # plt.scatter(a.x_list, a.y_list, s=2)
+        plt.show()

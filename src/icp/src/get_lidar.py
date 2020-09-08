@@ -25,6 +25,7 @@ class LiDAR_Association():
 
     def get_lidar(self, msg):
         point = []
+        data = []
         for ind, dist in enumerate(msg.ranges):
             if dist >= msg.range_min and dist <= msg.range_max:
                 
@@ -34,22 +35,26 @@ class LiDAR_Association():
                     x,
                     y
                 ])
+                data.append([
+                    ind * math.pi / 725,
+                    dist
+                ])
         self.px = [i[0] for i in point]
         self.py = [i[1] for i in point]
-
-
+        self.phi = [i[0] for i in data]
+        self.dist = [i[1] for i in data]
 
 if __name__ == "__main__":
     try:
         a = LiDAR_Association()
-        b = LiDAR_Association()
+        # b = LiDAR_Association()
         rospy.spin()
     except KeyboardInterrupt:
         pass
 
     finally:
-        print(b.px)
-        plt.scatter(a.px, a.py, s=20, color="black")
-        plt.scatter(b.px, b.py, s=5, color="red")
+        # print(b.px)
+        plt.scatter(a.phi, a.dist, s=5, color="black")
+        # plt.scatter(b.px, b.py, s=5, color="red")
         plt.show()
         pass

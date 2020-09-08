@@ -172,8 +172,8 @@ def icp(A, B, init_pose=None, max_iterations=20, tolerance=0.001, max_dist=1.0):
 if __name__ == "__main__":
     # A = np.random.randint(0,51,(20,2))    # (3D) 20 points for test
     A = np.array([
-        range(20),
-        range(10)+[10]*10
+        range(10),
+        range(10)
     ]).T
     # print(A.shape[0])
     
@@ -191,6 +191,8 @@ if __name__ == "__main__":
 
 
     T = icp(A, B)
+    print(T)
+    print(rotz(np.pi/4))
     # C = (A - np.mean(A, axis=0)).dot(T[0:2, 0:2]) + T[0:2, 2] + np.mean(A, axis=0)
     C = A.dot(T[0:2, 0:2].T) + T[0:2, 2]
 
@@ -204,8 +206,8 @@ if __name__ == "__main__":
     T_sol[0:2, 0:2] = rotz(np.pi/4).T
     T_sol[0:2, 2] = trans
 
-    print(T)
-    print(T_sol)
+    # print(T)
+    # print(T_sol)
 
     
     
