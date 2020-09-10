@@ -16,7 +16,7 @@ class LiDAR_Association():
 
 
         
-        self.fig = plt.figure()
+        # self.fig = plt.figure()
         # self.vel_pub = rospy.Publisher('/solamr_1/cmd_vel', geometry_msgs.msg.Twist, queue_size=10)
         # self.cmd = geometry_msgs.msg.Twist()
         rospy.Subscriber(topic_name, LaserScan, self.get_lidar)
@@ -36,7 +36,7 @@ class LiDAR_Association():
                     y
                 ])
                 data.append([
-                    ind * math.pi / 725,
+                    ind * math.pi / 725 - math.pi / 2.0,
                     dist
                 ])
         self.px = [i[0] for i in point]
@@ -46,15 +46,22 @@ class LiDAR_Association():
 
 if __name__ == "__main__":
     try:
-        a = LiDAR_Association()
-        # b = LiDAR_Association()
+        a = LiDAR_Association(topic_name='/solamr_1/scan_lidar')
+        b = LiDAR_Association(topic_name='/solamr_2/scan_lidar')
         rospy.spin()
     except KeyboardInterrupt:
         pass
 
     finally:
         # print(b.px)
-        plt.scatter(a.phi, a.dist, s=5, color="black")
-        # plt.scatter(b.px, b.py, s=5, color="red")
+        plt.figure()
+        plt.subplot(211)
+        plt.scatter(a.phi, a.dist, s=10, color="black")
+        plt.scatter(b.phi, b.dist, s=2, color="red")
+
+        plt.subplot(212)
+        plt.scatter(a.px, a.py, s=10, color="black")
+        plt.scatter(b.px, b.py, s=2, color="red")
+
         plt.show()
         pass

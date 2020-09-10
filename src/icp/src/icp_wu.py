@@ -63,7 +63,7 @@ def nearest_neighbor(src, dst):
     return distances.ravel(), indices.ravel()
 
 
-def icp(A, B, init_pose=None, max_iterations=20, tolerance=0.001, max_dist=1.0):
+def icp(A, B, init_pose=None, max_iterations=100, tolerance=0.001, max_dist=1.0):
     '''
     The Iterative Closest Point method: finds best-fit transform that maps points A on to points B
     Input:

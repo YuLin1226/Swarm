@@ -425,7 +425,7 @@ class ICP():
 
         # return distances, indecies
 
-    def icp(self, A, B, init_pose=None, max_iterations=30, tolerance=0.01, max_dist=1):
+    def icp(self, A, B, init_pose=None, max_iterations=100, tolerance=0.01, max_dist=0.5):
         '''
         The Iterative Closest Point method
         Input:
@@ -956,7 +956,7 @@ class CAR():
 
 if __name__ == "__main__":
     rospy.init_node('SLAM_Infomation_Construction', anonymous=True)
-    rate = rospy.Rate(5)
+    rate = rospy.Rate(0.5)
 
     try:
         # List Set
@@ -1000,8 +1000,8 @@ if __name__ == "__main__":
                     car.lidar.landmark,
                     car.lidar.scan
                 ])
-                print(Node_set[-1][0])
-                print("===================")
+                print(Node_set[-1][4])
+                # print("===================")
                 
                 # Store Edge data with t = k & t = k - 1
                 if len(Node_set) >= 2:
@@ -1009,7 +1009,7 @@ if __name__ == "__main__":
                     A = Node_set[-2][5]
                     B = Node_set[-1][5]
                     
-                    T,_ = ICP().icp(B,A)
+                    T,_ = ICP().icp(A,B)
                     pose = t2v(T)
                     Cov = np.array([
                         [20,  0,     0],
@@ -1024,8 +1024,8 @@ if __name__ == "__main__":
                     ])
                     x.append(x[-1] + Edge_set[-1][2][0])
                     y.append(y[-1] + Edge_set[-1][2][1])
-                    # print(Edge_set[-1])
-                    # print("===================")
+                    print(Edge_set[-1][2])
+                    print("===================")
 
                 
                 '''
