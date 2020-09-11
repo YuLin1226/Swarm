@@ -1006,11 +1006,18 @@ if __name__ == "__main__":
                 # Store Edge data with t = k & t = k - 1
                 if len(Node_set) >= 2:
                     # which should be first? Need check
-                    A = Node_set[-2][5]
-                    B = Node_set[-1][5]
-                    
-                    T,_ = ICP().icp(A,B)
-                    pose = t2v(T)
+                    # A = Node_set[-2][5]
+                    # B = Node_set[-1][5]
+                    # T,_ = ICP().icp(A,B)
+                    # pose = t2v(T)
+                    A = Node_set[-2]
+                    B = Node_set[-1]
+                    pose = np.array([
+                        [B[1] - A[1]],
+                        [B[2] - A[2]],
+                        [B[3] - A[3]]
+                    ])
+
                     Cov = np.array([
                         [20,  0,     0],
                         [ 0, 20,     0],
@@ -1099,7 +1106,7 @@ if __name__ == "__main__":
                 node_id += 1
                 rate.sleep()
             
-        # rospy.spin()
+        rospy.spin()
 
     except KeyboardInterrupt:
         pass
