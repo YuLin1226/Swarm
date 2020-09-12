@@ -412,11 +412,25 @@ class CAR():
         self.lidar = LiDAR_Association(topic)
         self.odom = ODOM()
 
+        self.updated_node = None
+        self.flag_getting_updated = False
+        rospy.Subscriber("/solamr_1/optimized_node", Optimized_Node, self._get_updated_node)
+
+    def _get_updated_node(self, node_msg):
+        
+        self.flag_getting_updated = True
+        self.updated_node = node_msg
+        return
+
 if __name__ == "__main__":
     rospy.init_node('SLAM_Infomation_Construction', anonymous=True)
     rate = rospy.Rate(0.5)
 
     try:
+        print("sleep for 5 sec.")
+        rospy.sleep(1)
+        print("Woke UP.")
+
         # List Set
         '''
         Node Set
@@ -463,8 +477,7 @@ if __name__ == "__main__":
                 current_node.global_pose.x = Node_set[-1][1]
                 current_node.global_pose.y = Node_set[-1][2]
                 current_node.global_pose.yaw = Node_set[-1][3]
-                current_node.Landmark = Node_set[-1][4]
-                # Scan needs to be reshaped
+                # current_node.Landmark = Node_set[-1][4]
                 # current_node.Scan = Node_set[-1][5]
                 node_pub.publish(current_node)
 
@@ -479,11 +492,14 @@ if __name__ == "__main__":
                         [B[3] - A[3]]
                     ])
 
-                    Cov = np.array([
-                        [20,  0,     0],
-                        [ 0, 20,     0],
-                        [ 0,  0, 10000]
-                    ])
+                    # Cov = np.array([
+                    #     [20,  0,     0],
+                    #     [ 0, 20,     0],
+                    #     [ 0,  0, 10000]
+                    # ])
+                    Cov = np.array(
+                        [20, 0, 0, 0, 20, 0, 0, 0, 10000]
+                    )
                     Edge_set.append([
                         Node_set[-2][0],
                         Node_set[-1][0],
@@ -496,12 +512,17 @@ if __name__ == "__main__":
                     current_edge.relative_pose.x = Edge_set[-1][2][0]
                     current_edge.relative_pose.y = Edge_set[-1][2][1]
                     current_edge.relative_pose.yaw = Edge_set[-1][2][2]
-                    # current_edge.covariance = Edge_set[-1][3]
+                    current_edge.covariance = Edge_set[-1][3]
                     current_edge.covariance_shape.row = 3
                     current_edge.covariance_shape.column = 3
                     edge_pub.publish(current_edge)
 
-
+                if car.flag_getting_updated is True:
+                    # update the node info here
+                    print("Updated Done")
+                    print(car.updated_node)
+                    car.flag_getting_updated = False
+                    pass
 
                 if node_id > 160:
                     break

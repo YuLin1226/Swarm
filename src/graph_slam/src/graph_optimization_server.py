@@ -7,6 +7,7 @@ from scipy import sparse
 from scipy.sparse.linalg import inv, spsolve
 from geometry_msgs.msg import Point, Pose, Quaternion, Twist, Vector3
 from car_msg.msg import Node, Edge, Optimized_Node
+from std_msgs.msg import Bool
 
 # import csv
 # import tf
@@ -40,11 +41,6 @@ class PoseGraph():
             * H    : Information matrix
             * b    : Information vector
         '''
-        
-        # self.fig, self.ax = plt.subplots()
-        plt.ion()
-        # plt.show()
-
         return
         
 
@@ -144,19 +140,6 @@ class PoseGraph():
                 self.iterate_graph_slam()
                 print("No. %d iteration of optimization finished" %(i+1))
                 print("=========================================")
-
-                # plt plot
-                x = [i[1] for i in self.node]
-                y = [i[2] for i in self.node]
-                # plt.figure()
-                plt.cla()  
-                plt.xlim((-5, 5))
-                plt.ylim((-5, 5))
-                plt.scatter(x, y, s=2)
-                plt.plot(x, y)
-                plt.pause(0.1)
-            plt.ioff()
-            plt.show()
             print("Done Graph Optimization !!")
             return  
 
@@ -350,7 +333,7 @@ class PoseGraph():
 
 class DATA_COLLECTOR():
     
-    def __init__(self, topic_NODE, topic_EDGE):
+    def __init__(self, topic_NODE, topic_EDGE, topic_GRAPH_Request):
 
         self.node_set = []
         self.edge_set = []
@@ -362,7 +345,7 @@ class DATA_COLLECTOR():
         # Subscriber Declaration
         rospy.Subscriber(topic_NODE, Node, self._get_node)
         rospy.Subscriber(topic_EDGE, Edge, self._get_edge)
-        
+        rospy.Subscriber(topic_GRAPH_Request, Bool, self._update_node)
 
     def _get_node(self, node_data):
 
@@ -376,15 +359,46 @@ class DATA_COLLECTOR():
         ])
 
     def _get_edge(self, edge_data):
-
+        
+        cov = np.reshape(np.array(edge_data.covariance), (edge_data.covariance_shape.row, edge_data.covariance_shape.row))
+        
         self.edge_set.append([
             edge_data.Node_ID_From,
             edge_data.Node_ID_To,
-            edge_data.relative_pose.x,
-            edge_data.relative_pose.y,
-            edge_data.relative_pose.yaw,
-            edge_data.Covaranice
+            [   
+                edge_data.relative_pose.x,
+                edge_data.relative_pose.y,
+                edge_data.relative_pose.yaw
+            ],
+            cov
         ])
+    
+    def _update_node(self, request):
+        
+        # The request must be true, and node_set and edge_set cannot be empty.
+        if request.data is True and self.node_set and self.edge_set:
+            
+            print(self.node_set[-1])
+            print(self.edge_set[-1])
+
+
+            graph_result = _do_graph_optimization(self.node_set, self.edge_set)
+            optimal_node_set = Optimized_Node()
+            optimal_node_set.Node_ID = np.array([ i[0] for i in graph_result ])
+            optimal_node_set.Optimized_x = np.array([ i[1] for i in graph_result ])
+            optimal_node_set.Optimized_y = np.array([ i[2] for i in graph_result ])
+            optimal_node_set.Optimized_yaw = np.array([ i[3] for i in graph_result ])
+
+            self.optimized_node_pub.publish(optimal_node_set)
+
+            print("Mission Completed")
+        
+        else:
+            print("Fail.")
+            print("request is ", request.data)
+            print(bool(self.node_set))
+            print(bool(self.edge_set))
+            
 
 # -------------- GLOBAL FUNCTION --------------
 def _do_graph_optimization(Node_set, Edge_set, iteration=20):
@@ -401,23 +415,10 @@ if __name__ == "__main__":
 
     try:
         
-        info = DATA_COLLECTOR('/solamr_1/collector_node', '/solamr_1/collector_edge')
+        info = DATA_COLLECTOR(  topic_NODE = '/solamr_1/collector_node',
+                                topic_EDGE = '/solamr_1/collector_edge', 
+                                topic_GRAPH_Request = '/solamr_1/graph_request' )
         
-        while not rospy.is_shutdown():
-
-            # Need a logic
-            if 0:
-                graph_result = _do_graph_optimization(info.node_set, info.edge_set)
-
-                optimal_node_set = Optimized_Node()
-                optimal_node_set.Node_ID = graph_result[0,:]
-                optimal_node_set.Optimized_x = graph_result[1,:]
-                optimal_node_set.Optimized_y = graph_result[2,:]
-                optimal_node_set.Optimized_yaw = graph_result[3,:]
-
-                info.optimized_node_pub.publish(optimal_node_set)
-                
-            rate.sleep()
         rospy.spin()
 
     except KeyboardInterrupt:
