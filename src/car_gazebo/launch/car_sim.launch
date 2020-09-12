@@ -45,7 +45,7 @@
   <!-- ?> -->
 
   <!-- Spawn solamr_2 in Gazebo -->
-  <!-- <?ingore -->
+  <?ingore
   <group ns="solamr_2">
       <arg name="robot_name" value="solamr_2"/>
       <param name="tf_prefix" value="$(arg robot_name)" />  
@@ -58,7 +58,7 @@
           <arg name="robot_ns" value="$(arg robot_name)" />
       </include>
   </group>
-  <!-- ?> -->
+  ?>
 
   <!-- Spawn solamr_3 in Gazebo -->
   <?ingore

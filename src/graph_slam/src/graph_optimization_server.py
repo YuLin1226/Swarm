@@ -360,11 +360,11 @@ class DATA_COLLECTOR():
         self.optimized_node_pub = rospy.Publisher("/solamr_1/optimized_node", Optimized_Node, queue_size=10)
 
         # Subscriber Declaration
-        rospy.Subscriber(topic_NODE, Node, self.get_node)
-        rospy.Subscriber(topic_EDGE, Edge, self.get_edge)
+        rospy.Subscriber(topic_NODE, Node, self._get_node)
+        rospy.Subscriber(topic_EDGE, Edge, self._get_edge)
         
 
-    def get_node(self, node_data):
+    def _get_node(self, node_data):
 
         self.node_set.append([
             node_data.Node_ID,
@@ -375,7 +375,7 @@ class DATA_COLLECTOR():
             node_data.Scan
         ])
 
-    def get_edge(self, edge_data):
+    def _get_edge(self, edge_data):
 
         self.edge_set.append([
             edge_data.Node_ID_From,
@@ -401,7 +401,7 @@ if __name__ == "__main__":
 
     try:
         
-        info = DATA_COLLECTOR('/solamr_1/graph_node', '/solamr_1/graph_edge')
+        info = DATA_COLLECTOR('/solamr_1/collector_node', '/solamr_1/collector_edge')
         
         while not rospy.is_shutdown():
 
