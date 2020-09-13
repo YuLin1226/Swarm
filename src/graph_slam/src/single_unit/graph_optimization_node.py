@@ -5,10 +5,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy import sparse
 from scipy.sparse.linalg import inv, spsolve
-from geometry_msgs.msg import Point, Pose, Quaternion, Twist, Vector3
 from car_msg.msg import Node, Edge, Optimized_Node
 from std_msgs.msg import Bool
 
+# from geometry_msgs.msg import Point, Pose, Quaternion, Twist, Vector3
 # import csv
 # import tf
 # from nav_msgs.msg import Odometry
