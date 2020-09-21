@@ -9,6 +9,7 @@ from sensor_msgs.msg import JointState # For subscrbing JointState to compute od
 from geometry_msgs.msg import Point, Pose, Quaternion, Twist, Vector3
 from nav_msgs.msg import Odometry
 from car_msg.msg import Node, Edge, Optimized_Node
+import tf
 
 class ODOM():
     def __init__(self):
@@ -36,6 +37,7 @@ class ODOM():
         self.yaw = -3.14
 
         # rospy
+        self.odom_pub = rospy.Publisher("/solamr_1/wheel_odom", Odometry, queue_size=50)
         rospy.Subscriber('/solamr_1/joint_states', JointState, self.get_encoder)
         # rospy.Subscriber('/solamr_1/imu', Imu, self.get_imu)
 
@@ -68,6 +70,8 @@ class ODOM():
         self.y += vx * math.sin(self.yaw) * dt
         self.yaw += wz * dt
 
+        self.publish_odom(vx, wz)
+
    
     def lowpass_filter(self, data_list):
         
@@ -79,6 +83,19 @@ class ODOM():
         wz = (wR - wL) * self.wheel_radius / self.wheel_dist
         
         return vx, wz
+
+    def publish_odom(self, vx, wz):
+        current_time = rospy.Time.now()
+        odom = Odometry()
+        odom.header.stamp = current_time
+        odom.header.frame_id = "solamr_1/odom"
+        odom.child_frame_id = "solamr_1/base_footprint"
+        odom.twist.twist = Twist(Vector3(vx, 0, 0), Vector3(0, 0, wz))
+
+        odom_quat = tf.transformations.quaternion_from_euler(0, 0, self.yaw)
+        odom.pose.pose = Pose(Point(self.x, self.y, 0.), Quaternion(*odom_quat))
+
+        self.odom_pub.publish(odom)
 
 class Segment():
     def __init__(self, x, y):

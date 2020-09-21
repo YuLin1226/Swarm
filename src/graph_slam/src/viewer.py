@@ -165,7 +165,7 @@ if __name__ == "__main__":
     
     # -- ros function
     rospy.Subscriber(name='/solamr_1/scan_lidar', data_class=LaserScan, callback=cb_scan)
-    rospy.Subscriber(name='/solamr_1/odom', data_class=Odometry, callback=cb_odom)
+    rospy.Subscriber(name='/solamr_1/wheel_odom', data_class=Odometry, callback=cb_odom)
     # -- matplotlib show 
     viewer = Viewer()
     rate = rospy.Rate(hz=2)
