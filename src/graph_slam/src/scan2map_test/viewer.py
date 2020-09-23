@@ -21,13 +21,13 @@ class Viewer:
         """
         Update matplotlib ax.
         """
-        # self._plot_scan_map_high_resolution()
-        # self._plot_scan_map_low_resolution()
-        # self._plot_robot()
-        # self.fig.canvas.draw()
-        print(MAP_1_list)
-        # plt.pause(0.01)
+        self._plot_scan_map_high_resolution()
+        self._plot_scan_map_low_resolution()
+        self._plot_robot()
+        self.fig.canvas.draw()
+        plt.pause(0.001)
 
+        # print(MAP_1_list)
 
     def _plot_scan_map_high_resolution(self):
         
