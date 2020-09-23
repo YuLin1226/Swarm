@@ -355,6 +355,7 @@ class DATA_COLLECTOR():
             node_data.global_pose.y,
             node_data.global_pose.yaw,
             node_data.Landmark,
+            node_data.Feature,
             node_data.Scan
         ])
 
