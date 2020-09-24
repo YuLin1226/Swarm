@@ -197,12 +197,12 @@
       <material name="black"/>
     </visual>
 
-    <collision>
+    <!-- <collision>
       <origin xyz="0 0 -.03" rpy="0 0 0"/>
       <geometry>
         <cylinder length="0.08" radius="0.025"/>
       </geometry>
-    </collision>
+    </collision> -->
 
     <inertial>
       <mass value="0.114" />

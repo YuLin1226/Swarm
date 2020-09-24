@@ -70,6 +70,9 @@ class ODOM():
         self.y += vx * math.sin(self.yaw) * dt
         self.yaw += wz * dt
 
+        if self.yaw <= 0 or self.yaw >= 2*math.pi:
+            self.yaw = self.yaw%(2*math.pi)
+
         self.publish_odom(vx, wz)
 
    
