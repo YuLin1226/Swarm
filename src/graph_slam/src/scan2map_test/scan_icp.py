@@ -49,14 +49,16 @@ class Viewer:
 
     def _plot_raw_data(self, scan):
 
-        global MAP_1_list, MAP_2_list
+        global MAP_1_list, MAP_2_list, MAP_3_list 
 
         map_1 = np.array(MAP_1_list)
         map_2 = np.array(MAP_2_list)
+        map_3 = np.array(MAP_3_list)
         self.ax3.cla() 
         self.ax3.scatter(map_1[:,0], map_1[:,1], c='black', s=2, label="scan_1")
         self.ax3.scatter(map_2[:,0], map_2[:,1], c='red', s=2, label="scan_2")
         self.ax3.scatter(scan[:,0], scan[:,1], c='blue', s=2, label="scan_2")
+        self.ax3.scatter(map_3[:,0], map_3[:,1], c='green', s=2, label="scan_2")
         self.ax3.grid(which='both', color='grey')
 
         MAP_1_list, MAP_2_list = [],[]
@@ -78,170 +80,170 @@ class Viewer:
 
     
 
-# class ICP():
-#     def __init__(self):
-#         pass
+class ICP():
+    def __init__(self):
+        pass
 
 
-#     def best_fit_transform(self, A, B):
-#         '''
-#         Calculates the least-squares best-fit transform between corresponding 2D points A->B
-#         Input:
-#         A: Nx2 numpy array of corresponding 3D points
-#         B: Nx2 numpy array of corresponding 3D points
-#         Returns:
-#         T: 3x3 homogeneous transformation matrix
-#         R: 2x2 rotation matrix
-#         t: 2x1 column vector
-#         '''
+    def best_fit_transform(self, A, B):
+        '''
+        Calculates the least-squares best-fit transform between corresponding 2D points A->B
+        Input:
+        A: Nx2 numpy array of corresponding 3D points
+        B: Nx2 numpy array of corresponding 3D points
+        Returns:
+        T: 3x3 homogeneous transformation matrix
+        R: 2x2 rotation matrix
+        t: 2x1 column vector
+        '''
         
-#         # If true, continue ; if false, break.
-#         assert len(A) == len(B)
+        # If true, continue ; if false, break.
+        assert len(A) == len(B)
 
-#         # translate points to their centroids
-#         centroid_A = np.mean(A, axis=0)
-#         centroid_B = np.mean(B, axis=0)
-#         AA = A - centroid_A
-#         BB = B - centroid_B
+        # translate points to their centroids
+        centroid_A = np.mean(A, axis=0)
+        centroid_B = np.mean(B, axis=0)
+        AA = A - centroid_A
+        BB = B - centroid_B
 
-#         # rotation matrix
-#         W = np.dot(BB.T, AA)
-#         U, s, VT = np.linalg.svd(W)
-#         R = np.dot(U, VT)
+        # rotation matrix
+        W = np.dot(BB.T, AA)
+        U, s, VT = np.linalg.svd(W)
+        R = np.dot(U, VT)
 
-#         # special reflection case
-#         if np.linalg.det(R) < 0:
-#             VT[-1, :] *= -1
-#             R = np.dot(U, VT)
+        # special reflection case
+        if np.linalg.det(R) < 0:
+            VT[-1, :] *= -1
+            R = np.dot(U, VT)
 
 
-#         # translation
-#         t = centroid_B.T - np.dot(R, centroid_A.T)
+        # translation
+        t = centroid_B.T - np.dot(R, centroid_A.T)
 
-#         # homogeneous transformation
-#         T = np.identity(3)
-#         T[0:2, 0:2] = R
-#         T[0:2, 2] = t
+        # homogeneous transformation
+        T = np.identity(3)
+        T[0:2, 0:2] = R
+        T[0:2, 2] = t
 
-#         return T, R, t
+        return T, R, t
 
-#     def nearest_neighbor(self, src, dst):
-#         '''
-#         Find the nearest (Euclidean) neighbor in dst for each point in src
-#         Input:
-#             src: Nx2 array of points
-#             dst: Nx2 array of points
-#         Output:
-#             distances: Euclidean distances (errors) of the nearest neighbor
-#             indecies: dst indecies of the nearest neighbor
-#         '''
+    def nearest_neighbor(self, src, dst):
+        '''
+        Find the nearest (Euclidean) neighbor in dst for each point in src
+        Input:
+            src: Nx2 array of points
+            dst: Nx2 array of points
+        Output:
+            distances: Euclidean distances (errors) of the nearest neighbor
+            indecies: dst indecies of the nearest neighbor
+        '''
 
-#         # indecies = np.zeros(src.shape[0], dtype=np.int)
-#         # distances = np.zeros(src.shape[0])
+        # indecies = np.zeros(src.shape[0], dtype=np.int)
+        # distances = np.zeros(src.shape[0])
         
-#         # # i: index ; s: element in src
-#         # for i, s in enumerate(src):
-#         #     min_dist = np.inf
+        # # i: index ; s: element in src
+        # for i, s in enumerate(src):
+        #     min_dist = np.inf
 
-#         #     # j: index ; d: element in dst
-#         #     for j, d in enumerate(dst):
-#         #         dist = np.linalg.norm(s-d)
-#         #         if dist < min_dist:
-#         #             min_dist = dist
-#         #             indecies[i] = j
-#         #             distances[i] = dist   
+        #     # j: index ; d: element in dst
+        #     for j, d in enumerate(dst):
+        #         dist = np.linalg.norm(s-d)
+        #         if dist < min_dist:
+        #             min_dist = dist
+        #             indecies[i] = j
+        #             distances[i] = dist   
         
-#         neigh = NearestNeighbors(n_neighbors=1)
-#         neigh.fit(dst)
-#         distances, indices = neigh.kneighbors(src, return_distance=True)
-#         return distances.ravel(), indices.ravel()
+        neigh = NearestNeighbors(n_neighbors=1)
+        neigh.fit(dst)
+        distances, indices = neigh.kneighbors(src, return_distance=True)
+        return distances.ravel(), indices.ravel()
 
-#         # return distances, indecies
+        # return distances, indecies
 
-#     def icp(self, A, B, init_pose=None, max_iterations=10, tolerance=0.01, max_dist=0.5):
-#         '''
-#         The Iterative Closest Point method
-#         Input:
-#             A: Nx2 numpy array of source 3D points
-#             B: Nx2 numpy array of destination 3D point
-#             init_pose: 3x3 homogeneous transformation
-#             max_iterations: exit algorithm after max_iterations
-#             tolerance: convergence criteria
-#         Output:
-#             T: final homogeneous transformation
-#             distances: Euclidean distances (errors) of the nearest neighbor
-#         '''
+    def icp(self, A, B, init_pose=None, max_iterations=10, tolerance=0.01, max_dist=0.5):
+        '''
+        The Iterative Closest Point method
+        Input:
+            A: Nx2 numpy array of source 3D points
+            B: Nx2 numpy array of destination 3D point
+            init_pose: 3x3 homogeneous transformation
+            max_iterations: exit algorithm after max_iterations
+            tolerance: convergence criteria
+        Output:
+            T: final homogeneous transformation
+            distances: Euclidean distances (errors) of the nearest neighbor
+        '''
 
-#         # Check the dimenstion is the same
-#         assert A.shape[1] == B.shape[1]  
+        # Check the dimenstion is the same
+        assert A.shape[1] == B.shape[1]  
 
-#         # get dimensions, m should be 2
-#         m = A.shape[1]
+        # get dimensions, m should be 2
+        m = A.shape[1]
         
 
 
-#         # make points homogeneous, copy them so as to maintain the originals
-#         src = np.ones((m+1, A.shape[0]))
-#         dst = np.ones((m+1, B.shape[0]))
-#         src[0:m, :] = np.copy(A.T)
-#         dst[0:m, :] = np.copy(B.T)
+        # make points homogeneous, copy them so as to maintain the originals
+        src = np.ones((m+1, A.shape[0]))
+        dst = np.ones((m+1, B.shape[0]))
+        src[0:m, :] = np.copy(A.T)
+        dst[0:m, :] = np.copy(B.T)
         
-#         # apply the initial pose estimation
-#         if init_pose is not None:
-#             src = np.dot(init_pose, src)
+        # apply the initial pose estimation
+        if init_pose is not None:
+            src = np.dot(init_pose, src)
 
-#         prev_error = 0
+        prev_error = 0
 
-#         for iteration in range(max_iterations):
-#             # find the nearest neighbours between the current source and destination points
-#             distances, indicies = self.nearest_neighbor(src[0:m, :].T, dst[0:m, :].T)
+        for iteration in range(max_iterations):
+            # find the nearest neighbours between the current source and destination points
+            distances, indicies = self.nearest_neighbor(src[0:m, :].T, dst[0:m, :].T)
 
 
-#             # Remove Outliers
-#             j = 0
-#             src_good = []
-#             src_indicies_good = []
-#             dst_indicies_good = []
-#             for i, distance in enumerate(distances):
-#                 if distance <= max_dist*2.0/(iteration + 1.0):
-#                 # if distance <= max_dist:
-#                     src_good.append([
-#                         src[0, i],
-#                         src[1, i]
-#                     ])
-#                     dst_indicies_good.append(indicies[i])
-#                     src_indicies_good.append(i)
+            # Remove Outliers
+            j = 0
+            src_good = []
+            src_indicies_good = []
+            dst_indicies_good = []
+            for i, distance in enumerate(distances):
+                if distance <= max_dist*2.0/(iteration + 1.0):
+                # if distance <= max_dist:
+                    src_good.append([
+                        src[0, i],
+                        src[1, i]
+                    ])
+                    dst_indicies_good.append(indicies[i])
+                    src_indicies_good.append(i)
                     
-#                     j += 1
+                    j += 1
 
-#             src_good = np.array(src_good).T
-#             dst_good = dst[0:m, dst_indicies_good] 
+            src_good = np.array(src_good).T
+            dst_good = dst[0:m, dst_indicies_good] 
             
-#             # compute the transformation between the current source and nearest destination points
-#             # T,_,_ = self.best_fit_transform(src[0:m, :].T, dst[0:m ,indicies].T)
-#             T,_,_ = self.best_fit_transform(src_good.T, dst_good.T)
+            # compute the transformation between the current source and nearest destination points
+            # T,_,_ = self.best_fit_transform(src[0:m, :].T, dst[0:m ,indicies].T)
+            T,_,_ = self.best_fit_transform(src_good.T, dst_good.T)
 
-#             # update the current source, current source will converge to destination.
-#             src = np.dot(T, src)
+            # update the current source, current source will converge to destination.
+            src = np.dot(T, src)
 
-#             # check error
-#             mean_error = np.sum(distances) / distances.size
-#             if abs(prev_error-mean_error) < tolerance:
-#                 break
-#             prev_error = mean_error
+            # check error
+            mean_error = np.sum(distances) / distances.size
+            if abs(prev_error-mean_error) < tolerance:
+                break
+            prev_error = mean_error
 
-#         # calculcate final tranformation
-#         T,_,_ = self.best_fit_transform(A, src[0:m, :].T)
+        # calculcate final tranformation
+        T,_,_ = self.best_fit_transform(A, src[0:m, :].T)
 
-#         return T, distances
+        return T, distances
   
 
 """
 Test
 """
-import math
-import numpy as np
-from sklearn.neighbors import NearestNeighbors
+# import math
+# import numpy as np
+# from sklearn.neighbors import NearestNeighbors
 
 
 def euclidean_distance(point1, point2):
@@ -331,8 +333,10 @@ def icp(reference_points, points, max_iterations=50, distance_threshold=0.5, con
 
     transformation_history = []
 
-    nbrs = NearestNeighbors(n_neighbors=1, algorithm='kd_tree').fit(reference_points)
+    x, y, yaw = 0, 0, 0
 
+    nbrs = NearestNeighbors(n_neighbors=1, algorithm='kd_tree').fit(reference_points)
+    
     for iter_num in range(max_iterations):
         if verbose:
             print('------ iteration', iter_num, '------')
@@ -377,6 +381,11 @@ def icp(reference_points, points, max_iterations=50, distance_threshold=0.5, con
         # update transformation history
         transformation_history.append(np.hstack((rot, np.array([[closest_translation_x], [closest_translation_y]]))))
 
+
+        yaw += closest_rot_angle
+        x += closest_translation_x
+        y += closest_translation_y
+
         # check convergence
         if (abs(closest_rot_angle) < convergence_rotation_threshold) \
                 and (abs(closest_translation_x) < convergence_translation_threshold) \
@@ -385,7 +394,7 @@ def icp(reference_points, points, max_iterations=50, distance_threshold=0.5, con
                 print('Converged!')
             break
 
-    return transformation_history, points
+    return transformation_history, points, [yaw, x, y]
 
 
 
@@ -479,7 +488,7 @@ def cb_scan_2(msg):
     # print("Solution is:", sol)
     # MAP_1 = np.zeros((400,400))
 
-    global  MAP_2,  MAP_2_list, SIZE
+    global  MAP_2,  MAP_2_list, SIZE, MAP_3_list
     center = int(SIZE/2)
     resolution = int(2000 / SIZE)
 
@@ -501,6 +510,15 @@ def cb_scan_2(msg):
             
             MAP_2[px,py] = -1
             MAP_2_list.append([
+                x,
+                y
+            ])
+
+
+            x = dist * math.cos(ind * math.pi / 725 +0.3) - 0.5
+            y = dist * math.sin(ind * math.pi / 725 +0.3) - 0.5
+
+            MAP_3_list.append([
                 x,
                 y
             ])
@@ -536,6 +554,7 @@ if __name__ == "__main__":
     MAP_2 = np.zeros((SIZE,SIZE))
     MAP_1_list = []
     MAP_2_list = []
+    MAP_3_list = []
     # -- ros node and params
     rospy.init_node(name="viewer", anonymous=False)
     
@@ -559,10 +578,17 @@ if __name__ == "__main__":
             # print(B.shape)
 
             # T,_ = ICP().icp(A, B)
-            T, scan_aligned = icp(A, B)
+            T, scan_aligned, sol = icp(A, B)
             # v = t2v(T)
-            
-            print(T)
+            # rot = np.eye(2)
+            # x = 0
+            # y = 0
+            # for i in range(len(T)):
+            #     rot = T[i][0:2,0:2]*rot
+            #     x += T[i][0,2]
+            #     y += T[i][1,2]
+
+            print(sol)
             print("========================")
             # MAP_1 = np.zeros((SIZE,SIZE))
             # MAP_2 = np.zeros((SIZE,SIZE))
