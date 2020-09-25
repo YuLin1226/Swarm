@@ -515,8 +515,8 @@ def cb_scan_2(msg):
             ])
 
 
-            x = dist * math.cos(ind * math.pi / 725 +0.3) #- 0.5
-            y = dist * math.sin(ind * math.pi / 725 +0.3)# - 0.5
+            x = dist * math.cos(ind * math.pi / 725 +0.23) -0.67
+            y = dist * math.sin(ind * math.pi / 725 +0.23) +0.1
 
             MAP_3_list.append([
                 x,
