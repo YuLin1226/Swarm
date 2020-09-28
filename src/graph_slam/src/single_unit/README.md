@@ -3,7 +3,7 @@
 - Calculation of error vector:
     
     <!-- $$$$ -->
-    ![](http://latex.codecogs.com/gif.latex?\e={T^j_i}^{-1}{T^i_0}^{-1}T^j_0})
+    ![](http://latex.codecogs.com/gif.latex?\e={T^j_i}^{-1} {T^i_0}^{-1} T^j_0})
     Transformations above are derived from:
     1. ![](http://latex.codecogs.com/gif.latex?\{T^i_0},{T^i_0}\rightarrow) odometry pose.
     <!-- ${T^i_0}$ & ${T^i_0}$ $\rightarrow$  -->
