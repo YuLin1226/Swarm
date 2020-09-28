@@ -558,3 +558,36 @@ if __name__ == "__main__":
     finally:
         pass
         
+
+"""
+Edge from odometry.
+"""
+# # Node from
+# yaw_i = 2.4 
+# x_i , y_i = -4.5 , 0
+# T_i = tf(yaw_i, x_i, y_i)
+
+# # Node to 
+# yaw_j = 2.8 
+# x_j , y_j = -5, -0.3
+# T_j = tf(yaw_j, x_j, y_j)
+
+# # tf from j to i
+# yaw_ji = yaw_j - yaw_i
+# dv = np.array([
+#     [x_j],
+#     [y_i],
+#     [1]
+# ])
+
+# v = np.linalg.inv(T_j).dot(dv)
+# x_ji = v[0,0]
+# y_ji = v[1,0]
+
+# T_ji = tf(yaw_ji, x_ji, y_ji)
+
+# error = np.linalg.inv(T_i.dot(T_ji)).dot(T_j)
+
+"""
+Put T_ji into edge list. 
+"""
