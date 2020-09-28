@@ -181,7 +181,7 @@ class LiDAR_Association():
             range_std
         ])
 
-        # print(self.scan_feature[-1])
+        print(self.scan_feature[-1])
   
 
 if __name__ == "__main__":

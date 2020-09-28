@@ -65,6 +65,36 @@ class DATA_COLLECTOR():
     
 # -------------- GLOBAL FUNCTION --------------
 
+def cos_similarity(vector1, vector2):
+    """
+    Input 2 vector as following form:
+    vector1: Nx1 nd array
+    vector2: Nx1 nd array 
+    ---------------------------------
+    Output the cosine value between these 2 vector as similarity.
+    """
+
+    dist1 = np.sum(vector1**2)**0.5
+    dist2 = np.sum(vector2**2)**0.5
+
+    dot_value = vector1.T.dot(vector2)
+    cos_value = dot_value / (dist1*dist2)
+
+    return cos_value
+
+def correlation(vector1, vector2):
+    """
+    Input 2 vector as following form:
+    vector1: Nx1 nd array
+    vector2: Nx1 nd array 
+    ---------------------------------
+    Output the correlation matrix.
+    """
+
+    data = np.hstack((vector1, vector2)).T
+    
+    return np.corrcoef(data)
+
 # -------------- MAIN --------------
 if __name__ == "__main__":
     rospy.init_node('Loop_Closing_NODE', anonymous=True)
