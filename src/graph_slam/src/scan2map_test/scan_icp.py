@@ -379,8 +379,7 @@ def icp(reference_points, points, max_iterations=50, distance_threshold=0.5, con
         points = aligned_points
 
         # update transformation history
-        transformation_history.append(np.hstack((rot, np.array([[closest_translation_x], [closest_translation_y]]))))
-
+        transformation_history.append(np.vstack((np.hstack( (rot, np.array([[closest_translation_x], [closest_translation_y]]) )), np.array([0,0,1]))))
 
         yaw += closest_rot_angle
         x += closest_translation_x
@@ -449,45 +448,6 @@ def cb_scan_1(msg):
 def cb_scan_2(msg):
 
 
-    # global MAP_1, COST, RAD_TABLE_COS, RAD_TABLE_SIN
-    # COST = 0
-    # last_COST = COST
-
-    # for yaw in range(11):
-    #     del_yaw = 0.25 + (yaw - 10)*0.05
-    #     del_yaw_deg = del_yaw / math.pi * 360
-
-    #     for x in range(21):
-    #         del_x = -0.5 + (x - 30)*0.05
-            
-    #         for y in range(21):
-    #             del_y = 0.5 + (y - 30)*0.05
-    
-    #             for ind, dist in enumerate(msg.ranges):
-    #                 if dist >= msg.range_min and dist <= msg.range_max:
-                        
-    #                     theta = int(ind*0.25+del_yaw_deg)
-    #                     theta_ind = theta % 360
-
-
-    #                     scan_x = dist * RAD_TABLE_COS[theta_ind]/1000 + del_x
-    #                     scan_y = dist * RAD_TABLE_SIN[theta_ind]/1000 + del_y
-
-    #                     px = int(100*scan_x/5) + 200
-    #                     py = int(100*scan_y/5) + 200
-                        
-    #                     if MAP_1[px,py] == -1:
-    #                         COST += 1
-        
-    #             if COST >= last_COST:
-    #                 sol = [yaw, x, y]
-
-    #             last_COST = COST
-    #             COST = 0
-
-    # print("Solution is:", sol)
-    # MAP_1 = np.zeros((400,400))
-
     global  MAP_2,  MAP_2_list, SIZE, MAP_3_list
     center = int(SIZE/2)
     resolution = int(2000 / SIZE)
@@ -515,8 +475,11 @@ def cb_scan_2(msg):
             ])
 
 
-            x = dist * math.cos(ind * math.pi / 725 +0.23) -0.67
-            y = dist * math.sin(ind * math.pi / 725 +0.23) +0.1
+            c = math.cos(0.28)
+            s = math.sin(0.28)
+
+            x = x*c - y*s + (-0.69)
+            y = x*s + y*c + (+0.17)
 
             MAP_3_list.append([
                 x,
@@ -578,18 +541,23 @@ if __name__ == "__main__":
             # print(B.shape)
 
             # T,_ = ICP().icp(A, B)
+            # print(T)
+
             T, scan_aligned, sol = icp(A, B)
-            # v = t2v(T)
-            # rot = np.eye(2)
-            # x = 0
-            # y = 0
-            # for i in range(len(T)):
-            #     rot = T[i][0:2,0:2]*rot
-            #     x += T[i][0,2]
-            #     y += T[i][1,2]
+            
+            T, scan_aligned, sol = icp(B, A)
+            """
+            This icp outputs sol as the format of "RB + T = A".
+            """
 
             print(sol)
-            print("========================")
+            # print("========================")
+            I = np.eye(3)
+            for i in range(len(T)):
+                I = I.dot(T[i])
+
+            print(I)
+            print("=======================")
             # MAP_1 = np.zeros((SIZE,SIZE))
             # MAP_2 = np.zeros((SIZE,SIZE))
             # MAP_1_list = []
