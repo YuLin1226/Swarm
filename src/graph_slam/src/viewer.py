@@ -6,6 +6,7 @@ import rospy
 from sensor_msgs.msg import LaserScan
 from nav_msgs.msg import Odometry
 import tf
+from bresenham import bresenham
 
 class Viewer:
     """
@@ -70,7 +71,7 @@ class Viewer:
 
 def cb_scan(msg):
 
-    global MAP_1, MAP_2, ROBOT_X, ROBOT_Y, MAP_1_ORIGIN, MAP_2_ORIGIN
+    global MAP_1, MAP_2, ROBOT_X, ROBOT_Y, MAP_1_ORIGIN, MAP_2_ORIGIN, LOG_odd_occ, LOG_odd_free
 
     for ind, dist in enumerate(msg.ranges):
         if dist >= msg.range_min and dist <= msg.range_max:
@@ -78,6 +79,7 @@ def cb_scan(msg):
             x = dist * math.cos(ind*math.pi/725 - math.pi/2 + ROBOT_YAW) + ROBOT_X
             y = dist * math.sin(ind*math.pi/725 - math.pi/2 + ROBOT_YAW) + ROBOT_Y
 
+            
             # MAP_1
             px = int(100*(x - MAP_1_ORIGIN[0])/5) 
             py = int(100*(y - MAP_1_ORIGIN[1])/5)
@@ -102,7 +104,16 @@ def cb_scan(msg):
                 new_map = np.zeros((MAP_1.shape[0], int(500/5)))
                 MAP_1 = np.hstack((MAP_1, new_map))
             
-            MAP_1[px,py] = -1
+            # MAP_1[px,py] = -1
+
+            MAP_1[px,py] += LOG_odd_occ
+
+            pixel_free = list(bresenham(int(100*(ROBOT_X - MAP_1_ORIGIN[1])/5), int(100*(ROBOT_Y - MAP_1_ORIGIN[1])/5), px, py))
+            for i in range(len(pixel_free)-2):
+                MAP_1[pixel_free[i+1]] -= LOG_odd_free
+
+
+
 
             # MAP_2
             px = int(100*(x - MAP_2_ORIGIN[0])/50) 
@@ -128,7 +139,12 @@ def cb_scan(msg):
                 new_map = np.zeros((MAP_2.shape[0], int(500/50)))
                 MAP_2 = np.hstack((MAP_2, new_map))
             
-            MAP_2[px,py] = -1
+            # MAP_2[px,py] = -1
+            MAP_2[px,py] += LOG_odd_occ
+
+            pixel_free = list(bresenham(int(100*(ROBOT_X - MAP_2_ORIGIN[1])/50), int(100*(ROBOT_Y - MAP_2_ORIGIN[1])/50), px, py))
+            for i in range(len(pixel_free)-2):
+                MAP_2[pixel_free[i+1]] -= LOG_odd_free
             
 def cb_odom(data):
 
@@ -159,6 +175,8 @@ if __name__ == "__main__":
     ROBOT_Y = -0.07
     ROBOT_YAW = 3.14
     
+    LOG_odd_occ = 1
+    LOG_odd_free = 1
 
     # -- ros node and params
     rospy.init_node(name="viewer", anonymous=False)

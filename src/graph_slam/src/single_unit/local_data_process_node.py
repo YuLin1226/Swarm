@@ -161,10 +161,7 @@ class Segment():
                 self.seg[-1][1] = np.hstack((self.seg[-1][1] , y))
                 break
         
-        # print("=== First segmentation done, result is : ===")
-        # for i in range(len(self.seg)):
-        #     print(len(self.seg[i][0]))
-        
+       
 
     def classify_segment_type(self, seg):
         
