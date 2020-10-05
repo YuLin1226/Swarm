@@ -363,17 +363,17 @@ class DATA_COLLECTOR():
         # cov = np.reshape(np.array(edge_data.covariance), (edge_data.covariance_shape.row, edge_data.covariance_shape.row))
         cov = np.array([[20,0,0],[0,20,0],[0,0,1000]])
         self.edge_set = []
-        for i in range(edge_data.Number_Edge)
-        self.edge_set.append([
-            edge_data.Node_ID_From[i],
-            edge_data.Node_ID_To[i],
-            [   
-                edge_data.relative_pose_x[i],
-                edge_data.relative_pose_y[i],
-                edge_data.relative_pose_yaw[i]
-            ],
-            cov
-        ])
+        for i in range(edge_data.Number_Edge):
+            self.edge_set.append([
+                edge_data.Node_ID_From[i],
+                edge_data.Node_ID_To[i],
+                [   
+                    edge_data.relative_pose_x[i],
+                    edge_data.relative_pose_y[i],
+                    edge_data.relative_pose_yaw[i]
+                ],
+                cov
+            ])
     
     def _update_node(self, request):
         

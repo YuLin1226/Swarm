@@ -890,12 +890,12 @@ if __name__ == "__main__":
                     relative_pose_x_list = []
                     relative_pose_y_list = []
                     relative_pose_yaw_list = []
-                    for i in range(len(Node_set)):
+                    for i in range(len(Edge_set)):
                         Node_ID_From_list.append(Edge_set[i][0])
                         Node_ID_To_list.append(Edge_set[i][1])
-                        relative_pose_x_list.append(Edge_set[i][2])
-                        relative_pose_y_list.append(Edge_set[i][3])
-                        relative_pose_yaw_list.append(Edge_set[i][4])
+                        relative_pose_x_list.append(Edge_set[i][2][0])
+                        relative_pose_y_list.append(Edge_set[i][2][1])
+                        relative_pose_yaw_list.append(Edge_set[i][2][2])
 
 
 
