@@ -27,13 +27,13 @@ class Viewer:
         self._plot_scan_map_low_resolution()
         self._plot_robot()
         self.fig.canvas.draw()
-        plt.pause(0.1)
+        plt.pause(0.01)
 
     def _plot_scan_map_high_resolution(self):
         
         global MAP_1
         self.ax1.cla() 
-        self.ax1.imshow(X=MAP_1[::-1], cmap="gray", origin="lower")  # use img to show costmap
+        self.ax1.imshow(X=MAP_1[::-1], cmap="gray")#, origin="lower")  # use img to show costmap
         self.ax1.grid(which='both', color='grey')
         
 
@@ -41,7 +41,7 @@ class Viewer:
         
         global MAP_2
         self.ax2.cla() 
-        self.ax2.imshow(X=MAP_2[::-1], cmap="gray", origin="lower")  # use img to show costmap
+        self.ax2.imshow(X=MAP_2[::-1], cmap="gray")#, origin="lower")  # use img to show costmap
         self.ax2.grid(which='both', color='grey')
         
 
@@ -71,81 +71,94 @@ class Viewer:
 
 def cb_scan(msg):
 
-    global MAP_1, MAP_2, ROBOT_X, ROBOT_Y, MAP_1_ORIGIN, MAP_2_ORIGIN, LOG_odd_occ, LOG_odd_free
+    global MAP_1, MAP_2, ROBOT_X, ROBOT_Y, ROBOT_YAW, MAP_1_ORIGIN, MAP_2_ORIGIN, LOG_odd_occ, LOG_odd_free
 
     for ind, dist in enumerate(msg.ranges):
+        
         if dist >= msg.range_min and dist <= msg.range_max:
-            
-            x = dist * math.cos(ind*math.pi/725 - math.pi/2 + ROBOT_YAW) + ROBOT_X
-            y = dist * math.sin(ind*math.pi/725 - math.pi/2 + ROBOT_YAW) + ROBOT_Y
+            d = dist   
+        elif dist <= msg.range_min:
+            d = msg.range_min
+        else:
+            d = msg.range_max
 
-            
-            # MAP_1
-            px = int(100*(x - MAP_1_ORIGIN[0])/5) 
-            py = int(100*(y - MAP_1_ORIGIN[1])/5)
-            if px < 0:
-                new_map = np.zeros((int(500/5), MAP_1.shape[1]))
-                MAP_1 = np.vstack((new_map, MAP_1))
-                px = px + 100
-                MAP_1_ORIGIN[0] = MAP_1_ORIGIN[0] - 5
+        x = d * math.cos(ind*math.pi/725 - math.pi/2 + ROBOT_YAW) + ROBOT_X
+        y = d * math.sin(ind*math.pi/725 - math.pi/2 + ROBOT_YAW) + ROBOT_Y
 
-
-            elif px > MAP_1.shape[0]:
-                new_map = np.zeros((int(500/5), MAP_1.shape[1]))
-                MAP_1 = np.vstack((MAP_1, new_map))
-
-            if py < 0:
-                new_map = np.zeros((MAP_1.shape[0], int(500/5)))
-                MAP_1 = np.hstack((new_map, MAP_1))
-                py = py + 100
-                MAP_1_ORIGIN[1] = MAP_1_ORIGIN[1] - 5
-
-            elif py > MAP_1.shape[1]:
-                new_map = np.zeros((MAP_1.shape[0], int(500/5)))
-                MAP_1 = np.hstack((MAP_1, new_map))
-            
-            # MAP_1[px,py] = -1
-
-            MAP_1[px,py] += LOG_odd_occ
-
-            pixel_free = list(bresenham(int(100*(ROBOT_X - MAP_1_ORIGIN[1])/5), int(100*(ROBOT_Y - MAP_1_ORIGIN[1])/5), px, py))
-            for i in range(len(pixel_free)-2):
-                MAP_1[pixel_free[i+1]] -= LOG_odd_free
+        
+        # MAP_1
+        px = int(100*(x - MAP_1_ORIGIN[0])/5) 
+        py = int(100*(y - MAP_1_ORIGIN[1])/5)
+        if px < 0:
+            new_map = np.zeros((int(500/5), MAP_1.shape[1]))
+            MAP_1 = np.vstack((new_map, MAP_1))
+            px = px + 100
+            MAP_1_ORIGIN[0] = MAP_1_ORIGIN[0] - 5
 
 
+        elif px > MAP_1.shape[0]:
+            new_map = np.zeros((int(500/5), MAP_1.shape[1]))
+            MAP_1 = np.vstack((MAP_1, new_map))
+
+        if py < 0:
+            new_map = np.zeros((MAP_1.shape[0], int(500/5)))
+            MAP_1 = np.hstack((new_map, MAP_1))
+            py = py + 100
+            MAP_1_ORIGIN[1] = MAP_1_ORIGIN[1] - 5
+
+        elif py > MAP_1.shape[1]:
+            new_map = np.zeros((MAP_1.shape[0], int(500/5)))
+            MAP_1 = np.hstack((MAP_1, new_map))
+        
+        # MAP_1[px,py] = -1
+
+        MAP_1[px,py] += LOG_odd_occ
+        if MAP_1[px,py] > 1:
+            MAP_1[px,py] = 1
+
+        pixel_free = list(bresenham(int(100*(ROBOT_X - MAP_1_ORIGIN[1])/5), int(100*(ROBOT_Y - MAP_1_ORIGIN[1])/5), px, py))
+        for i in range(len(pixel_free)-2):
+            MAP_1[pixel_free[i+1]] -= LOG_odd_free
+            if MAP_1[px,py] < -1:
+                MAP_1[px,py] = -1
 
 
-            # MAP_2
-            px = int(100*(x - MAP_2_ORIGIN[0])/50) 
-            py = int(100*(y - MAP_2_ORIGIN[1])/50)
-            if px < 0:
-                new_map = np.zeros((int(500/50), MAP_2.shape[1]))
-                MAP_2 = np.vstack((new_map, MAP_2))
-                px = px + 10
-                MAP_2_ORIGIN[0] = MAP_2_ORIGIN[0] - 5
+
+        # MAP_2
+        px = int(100*(x - MAP_2_ORIGIN[0])/50) 
+        py = int(100*(y - MAP_2_ORIGIN[1])/50)
+        if px < 0:
+            new_map = np.zeros((int(500/50), MAP_2.shape[1]))
+            MAP_2 = np.vstack((new_map, MAP_2))
+            px = px + 10
+            MAP_2_ORIGIN[0] = MAP_2_ORIGIN[0] - 5
 
 
-            elif px > MAP_2.shape[0]:
-                new_map = np.zeros((int(500/50), MAP_2.shape[1]))
-                MAP_2 = np.vstack((MAP_2, new_map))
+        elif px > MAP_2.shape[0]:
+            new_map = np.zeros((int(500/50), MAP_2.shape[1]))
+            MAP_2 = np.vstack((MAP_2, new_map))
 
-            if py < 0:
-                new_map = np.zeros((MAP_2.shape[0], int(500/50)))
-                MAP_2 = np.hstack((new_map, MAP_2))
-                py = py + 10
-                MAP_2_ORIGIN[1] = MAP_2_ORIGIN[1] - 5
+        if py < 0:
+            new_map = np.zeros((MAP_2.shape[0], int(500/50)))
+            MAP_2 = np.hstack((new_map, MAP_2))
+            py = py + 10
+            MAP_2_ORIGIN[1] = MAP_2_ORIGIN[1] - 5
 
-            elif py > MAP_2.shape[1]:
-                new_map = np.zeros((MAP_2.shape[0], int(500/50)))
-                MAP_2 = np.hstack((MAP_2, new_map))
-            
-            # MAP_2[px,py] = -1
-            MAP_2[px,py] += LOG_odd_occ
+        elif py > MAP_2.shape[1]:
+            new_map = np.zeros((MAP_2.shape[0], int(500/50)))
+            MAP_2 = np.hstack((MAP_2, new_map))
+        
+        # MAP_2[px,py] = -1
+        MAP_2[px,py] += LOG_odd_occ
+        if MAP_2[px,py] > 1:
+            MAP_2[px,py] = 1
 
-            pixel_free = list(bresenham(int(100*(ROBOT_X - MAP_2_ORIGIN[1])/50), int(100*(ROBOT_Y - MAP_2_ORIGIN[1])/50), px, py))
-            for i in range(len(pixel_free)-2):
-                MAP_2[pixel_free[i+1]] -= LOG_odd_free
-            
+        pixel_free = list(bresenham(int(100*(ROBOT_X - MAP_2_ORIGIN[1])/50), int(100*(ROBOT_Y - MAP_2_ORIGIN[1])/50), px, py))
+        for i in range(len(pixel_free)-2):
+            MAP_2[pixel_free[i+1]] -= LOG_odd_free
+            if MAP_2[px,py] < -1:
+                MAP_2[px,py] = -1
+
 def cb_odom(data):
 
     global ROBOT_X, ROBOT_Y, ROBOT_YAW
@@ -172,11 +185,11 @@ if __name__ == "__main__":
     MAP_2_ORIGIN = np.zeros((2))
     
     ROBOT_X = 0
-    ROBOT_Y = -0.07
-    ROBOT_YAW = 3.14
+    ROBOT_Y = 0
+    ROBOT_YAW = 0
     
-    LOG_odd_occ = 1
-    LOG_odd_free = 1
+    LOG_odd_occ = 0.9
+    LOG_odd_free = 0.7
 
     # -- ros node and params
     rospy.init_node(name="viewer", anonymous=False)
@@ -184,9 +197,10 @@ if __name__ == "__main__":
     # -- ros function
     rospy.Subscriber(name='/solamr_1/scan_lidar', data_class=LaserScan, callback=cb_scan)
     rospy.Subscriber(name='/solamr_1/wheel_odom', data_class=Odometry, callback=cb_odom)
+
     # -- matplotlib show 
     viewer = Viewer()
-    rate = rospy.Rate(hz=2)
+    rate = rospy.Rate(hz=0.5)
     while not rospy.is_shutdown():
         viewer.update()
         rate.sleep()

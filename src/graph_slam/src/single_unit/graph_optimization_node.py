@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy import sparse
 from scipy.sparse.linalg import inv, spsolve
-from car_msg.msg import Node, Edge, Optimized_Node
+from car_msg.msg import Node, Edge, Optimized_Node, Node_List, Edge_List
 from std_msgs.msg import Bool
 
 # from geometry_msgs.msg import Point, Pose, Quaternion, Twist, Vector3
@@ -343,33 +343,34 @@ class DATA_COLLECTOR():
         self.optimized_node_pub = rospy.Publisher("/solamr_1/optimized_node", Optimized_Node, queue_size=10)
 
         # Subscriber Declaration
-        rospy.Subscriber(topic_NODE, Node, self._get_node)
-        rospy.Subscriber(topic_EDGE, Edge, self._get_edge)
+        rospy.Subscriber(topic_NODE, Node_List, self._get_node)
+        rospy.Subscriber(topic_EDGE, Edge_List, self._get_edge)
         rospy.Subscriber(topic_GRAPH_Request, Bool, self._update_node)
 
     def _get_node(self, node_data):
+        self.node_set = []
+        for i in range(node_data.Number_Node):
 
-        self.node_set.append([
-            node_data.Node_ID,
-            node_data.global_pose.x,
-            node_data.global_pose.y,
-            node_data.global_pose.yaw,
-            node_data.Landmark,
-            node_data.Feature,
-            node_data.Scan
-        ])
+            self.node_set.append([
+                node_data.Node_ID[i],
+                node_data.global_pose_x[i],
+                node_data.global_pose_y[i],
+                node_data.global_pose_yaw[i]
+            ])
 
     def _get_edge(self, edge_data):
         
-        cov = np.reshape(np.array(edge_data.covariance), (edge_data.covariance_shape.row, edge_data.covariance_shape.row))
-        
+        # cov = np.reshape(np.array(edge_data.covariance), (edge_data.covariance_shape.row, edge_data.covariance_shape.row))
+        cov = np.array([[20,0,0],[0,20,0],[0,0,1000]])
+        self.edge_set = []
+        for i in range(edge_data.Number_Edge)
         self.edge_set.append([
-            edge_data.Node_ID_From,
-            edge_data.Node_ID_To,
+            edge_data.Node_ID_From[i],
+            edge_data.Node_ID_To[i],
             [   
-                edge_data.relative_pose.x,
-                edge_data.relative_pose.y,
-                edge_data.relative_pose.yaw
+                edge_data.relative_pose_x[i],
+                edge_data.relative_pose_y[i],
+                edge_data.relative_pose_yaw[i]
             ],
             cov
         ])
@@ -379,8 +380,8 @@ class DATA_COLLECTOR():
         # The request must be true, and node_set and edge_set cannot be empty.
         if request.data is True and self.node_set and self.edge_set:
             
-            print(self.node_set[-1])
-            print(self.edge_set[-1])
+            # print(self.node_set[-1])
+            # print(self.edge_set[-1])
 
 
             graph_result = _do_graph_optimization(self.node_set, self.edge_set)
@@ -389,7 +390,7 @@ class DATA_COLLECTOR():
             optimal_node_set.Optimized_x = np.array([ i[1] for i in graph_result ])
             optimal_node_set.Optimized_y = np.array([ i[2] for i in graph_result ])
             optimal_node_set.Optimized_yaw = np.array([ i[3] for i in graph_result ])
-
+            print(optimal_node_set)
             self.optimized_node_pub.publish(optimal_node_set)
 
             print("Mission Completed")

@@ -56,6 +56,8 @@ find_package(catkin REQUIRED COMPONENTS
    Edge.msg
    array_shape.msg
    Optimized_Node.msg
+   Node_List.msg
+   Edge_List.msg
 )
 
 ## Generate services in the 'srv' folder
