@@ -1,2 +1,2 @@
-int8 row
-int8 column
+int32 row
+int32 column

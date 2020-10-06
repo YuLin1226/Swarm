@@ -84,8 +84,8 @@ class ScanMatching():
         return rot_angle, translation_x, translation_y
 
 
-    def icp(self, reference_points, points, max_iterations=50, distance_threshold=0.5, convergence_translation_threshold=1e-3,
-            convergence_rotation_threshold=1e-2, point_pairs_threshold=10, verbose=False):
+    def icp(self, reference_points, points, max_iterations=100, distance_threshold=0.5, convergence_translation_threshold=1e-5,
+            convergence_rotation_threshold=1e-2, point_pairs_threshold=50, verbose=False):
         """
         An implementation of the Iterative Closest Point algorithm that matches a set of M 2D points to another set
         of N 2D (reference) points.
@@ -616,10 +616,10 @@ class LiDAR_Association():
         for ind, dist in enumerate(msg.ranges):
             if dist >= msg.range_min and dist <= msg.range_max:
                 
-                # x = dist * math.cos(ind * math.pi / 725)
-                # y = dist * math.sin(ind * math.pi / 725)
-                x = dist * RAD_TABLE_COS[ind]
-                y = dist * RAD_TABLE_SIN[ind]
+                x = dist * math.cos(ind * math.pi / 725 - math.pi/2)
+                y = dist * math.sin(ind * math.pi / 725 - math.pi/2)
+                # x = dist * RAD_TABLE_COS[ind]
+                # y = dist * RAD_TABLE_SIN[ind]
                 point.append([
                     x,
                     y
@@ -769,7 +769,7 @@ class CAR():
 
 if __name__ == "__main__":
     rospy.init_node('SLAM_Infomation_Construction', anonymous=True)
-    rate = rospy.Rate(0.5)
+    rate = rospy.Rate(2)
 
 
     # Global Variable
@@ -927,7 +927,7 @@ if __name__ == "__main__":
                     car.flag_getting_updated = False
                     pass
 
-                if node_id > 160:
+                if node_id > 300:
                     break
                 
                 

@@ -11,10 +11,10 @@ class Viewer:
     Use matplotlib to show costmap and plot cmd_vel predicted locations.
     """
     def __init__(self):
-        self.fig, self.ax = plt.subplots(3,1)
-        self.ax1 = self.ax[0]
-        self.ax2 = self.ax[1]
-        self.ax3 = self.ax[2]
+        self.fig, self.ax = plt.subplots()
+        # self.ax1 = self.ax[0]
+        # self.ax2 = self.ax[1]
+        self.ax3 = self.ax
         plt.ion()
         plt.show()
 
@@ -22,9 +22,9 @@ class Viewer:
         """
         Update matplotlib ax.
         """
-        self._plot_scan_map_high_resolution()
-        self._plot_scan_map_low_resolution()
-        self._plot_robot()
+        # self._plot_scan_map_high_resolution()
+        # self._plot_scan_map_low_resolution()
+        # self._plot_robot()
         self._plot_raw_data(scan)
         plt.pause(0.01)
         self.fig.canvas.draw()
@@ -57,9 +57,10 @@ class Viewer:
         self.ax3.cla() 
         self.ax3.scatter(map_1[:,0], map_1[:,1], c='black', s=2, label="scan_1")
         self.ax3.scatter(map_2[:,0], map_2[:,1], c='red', s=2, label="scan_2")
-        self.ax3.scatter(scan[:,0], scan[:,1], c='blue', s=2, label="scan_2")
-        self.ax3.scatter(map_3[:,0], map_3[:,1], c='green', s=2, label="scan_2")
+        self.ax3.scatter(scan[:,0], scan[:,1], c='blue', s=2, label="scan_alignment")
+        self.ax3.scatter(map_3[:,0], map_3[:,1], c='green', s=2, label="scan_mutual")
         self.ax3.grid(which='both', color='grey')
+        self.ax3.legend()
 
         MAP_1_list, MAP_2_list = [],[]
     def _plot_robot(self):
@@ -424,8 +425,8 @@ def cb_scan_1(msg):
             #     dist
             # ])
 
-            x = dist * math.cos(ind * math.pi / 725)
-            y = dist * math.sin(ind * math.pi / 725)
+            x = dist * math.cos(ind * math.pi / 725 - math.pi/2)
+            y = dist * math.sin(ind * math.pi / 725 - math.pi/2)
 
             px = int(100*x/resolution) + center
             py = int(100*y/resolution) + center
@@ -462,8 +463,8 @@ def cb_scan_2(msg):
             # x = dist * math.cos(ind * math.pi / 725 +(0.3)) #+(-0.5)
             # y = dist * math.sin(ind * math.pi / 725 +(0.3)) #+(-0.5)
 
-            x = dist * math.cos(ind * math.pi / 725)
-            y = dist * math.sin(ind * math.pi / 725)
+            x = dist * math.cos(ind * math.pi / 725 - math.pi/2)
+            y = dist * math.sin(ind * math.pi / 725 - math.pi/2)
 
             px = int(100*x/resolution) + center
             py = int(100*y/resolution) + center
@@ -475,10 +476,10 @@ def cb_scan_2(msg):
             ])
 
 
-            c = math.cos(0.28)
-            s = math.sin(0.28)
+            c = math.cos(0.292)
+            s = math.sin(0.292)
 
-            x = x*c - y*s + (-0.69)
+            x = x*c - y*s + (+0.588)
             y = x*s + y*c + (+0.17)
 
             MAP_3_list.append([
@@ -545,23 +546,13 @@ if __name__ == "__main__":
 
             T, scan_aligned, sol = icp(A, B)
             
-            T, scan_aligned, sol = icp(B, A)
             """
             This icp outputs sol as the format of "RB + T = A".
+            That is, T_B->A = icp(A, B)
             """
 
             print(sol)
-            # print("========================")
-            I = np.eye(3)
-            for i in range(len(T)):
-                I = I.dot(T[i])
-
-            print(I)
-            print("=======================")
-            # MAP_1 = np.zeros((SIZE,SIZE))
-            # MAP_2 = np.zeros((SIZE,SIZE))
-            # MAP_1_list = []
-            # MAP_2_list = []
+            
 
         viewer.update(scan_aligned)
         rate.sleep()

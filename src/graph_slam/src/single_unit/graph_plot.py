@@ -4,6 +4,7 @@ import numpy as np
 import math
 import rospy
 from car_msg.msg import Node, Edge, Optimized_Node, Node_List, Edge_List
+from std_msgs.msg import Bool
 
 class Viewer:
     """
@@ -52,14 +53,16 @@ if __name__ == "__main__":
     rospy.init_node(name="viewer", anonymous=False)
     
     # -- ros function
+    graph_pub = rospy.Publisher("/solamr_1/graph_request", Bool, queue_size=10)
     rospy.Subscriber(name="/solamr_1/optimized_node", data_class=Optimized_Node, callback=cb_node)
 
     # -- matplotlib show 
     viewer = Viewer()
-    rate = rospy.Rate(hz=2)
+    rate = rospy.Rate(hz=0.1)
     
-
+    cmd = Bool()
     while not rospy.is_shutdown():
-
+        cmd.data = True
+        graph_pub.publish(cmd)
         viewer.update()
         rate.sleep()

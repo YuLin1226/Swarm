@@ -128,7 +128,7 @@ class PoseGraph():
 
         return
 
-    def optimize(self, num_iteration=5):
+    def optimize(self, num_iteration=20):
 
         '''(Done)
         Implement optimization to find a best solution for the graph.
@@ -190,7 +190,7 @@ class PoseGraph():
             j_node  = ei[1]
             
             # T_z: Transformation Matrix
-            T_z = self.v2t(ei[2])
+            T_z = self.v2t(ei[2])   #T_B->A
 
             # omega: Convariance
             omega = ei[3]
@@ -210,8 +210,8 @@ class PoseGraph():
             
 
             # Construct transformation from node to global frame
-            T_i = self.v2t(v_i)
-            T_j = self.v2t(v_j)
+            T_i = self.v2t(v_i)     #T_A->G
+            T_j = self.v2t(v_j)     #T_B->G
 
             R_i = T_i[0:2, 0:2]
             R_z = T_z[0:2, 0:2]
@@ -361,7 +361,7 @@ class DATA_COLLECTOR():
     def _get_edge(self, edge_data):
         
         # cov = np.reshape(np.array(edge_data.covariance), (edge_data.covariance_shape.row, edge_data.covariance_shape.row))
-        cov = np.array([[20,0,0],[0,20,0],[0,0,1000]])
+        cov = np.array([[20,0,0],[0,20,0],[0,0,20]])
         self.edge_set = []
         for i in range(edge_data.Number_Edge):
             self.edge_set.append([
