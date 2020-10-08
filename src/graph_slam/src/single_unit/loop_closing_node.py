@@ -390,11 +390,15 @@ class DATA_COLLECTOR():
         if flag:
             length = len(self.candidate_list)
             current_feature_vector = _cal_feature_vector(self.candidate_list[-1][4])
+            
             for i in range(length-1):
                 ref_current_vector = _cal_feature_vector(self.candidate_list[i][4])
                 similarity_val = _identify_similarity(current_feature_vector, ref_current_vector)
-                if similarity_val > 0.7:
+                print(similarity_val)
+                if similarity_val > 0.3:
                     print("Found it, we nailed it !!!!")
+                    print(self.candidate_list[-1][0])
+                    print(self.candidate_list[i][0])
                     break
                 
 
@@ -421,7 +425,8 @@ def _cal_feature_vector(scan_in_xy):
         consecutive_dist_sum,
         consecutive_dist_std,
         curvature_std,
-        [x_mean, y_mean],
+        x_mean, 
+        y_mean,
         geometry_std
         # range_std
     ])
@@ -488,6 +493,7 @@ if __name__ == "__main__":
                                 )
         
         while not rospy.is_shutdown():
+            info._do_loop_closing()
             rate.sleep()
 
         # rospy.spin()

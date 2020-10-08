@@ -8,4 +8,4 @@ for i in range(10):
 
 c = np.array((x,y)).T
 
-print(c)
+print(c**2)
