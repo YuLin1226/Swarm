@@ -8,7 +8,7 @@ from sensor_msgs.msg import LaserScan # For subscribing Laser Scan
 from sensor_msgs.msg import JointState # For subscrbing JointState to compute odom
 from geometry_msgs.msg import Point, Pose, Quaternion, Twist, Vector3
 from nav_msgs.msg import Odometry
-from car_msg.msg import Node, Edge, Optimized_Node, Node_List, Edge_List
+from car_msg.msg import Node, Edge, Optimized_Node, Node_List, Edge_List, Scan
 from sklearn.neighbors import NearestNeighbors
 import tf
 
@@ -605,7 +605,10 @@ class LiDAR_Association():
 
         self.landmark = None
         self.scan = None
+        self.scan_range_min = None
+        self.scan_range_max = None
         self.feature_vector = []
+
         rospy.Subscriber(topic_name, LaserScan, self.get_lidar)
         
     def get_lidar(self, msg):
@@ -781,7 +784,7 @@ if __name__ == "__main__":
         RAD_TABLE_SIN.append(
             math.sin(ind * math.pi / 725)
         )
-
+    
     try:
         print("sleep for 5 sec.")
         rospy.sleep(1)
@@ -840,19 +843,26 @@ if __name__ == "__main__":
                 global_pose_x_list = []
                 global_pose_y_list = []
                 global_pose_yaw_list = []
+                current_scan_point = Scan()
+                current_scan_list = []
+                
                 for i in range(len(Node_set)):
                     Node_ID_list.append(Node_set[i][0])
                     global_pose_x_list.append(Node_set[i][1])
                     global_pose_y_list.append(Node_set[i][2])
                     global_pose_yaw_list.append(Node_set[i][3])
-
-
+                    
+                    current_scan_point.point_x = Node_set[i][5][:,0]
+                    current_scan_point.point_y = Node_set[i][5][:,1]
+                    current_scan_list.append(current_scan_point)
 
                 Node_history.Number_Node = len(Node_set)
                 Node_history.Node_ID = Node_ID_list
                 Node_history.global_pose_x = global_pose_x_list
                 Node_history.global_pose_y = global_pose_y_list
                 Node_history.global_pose_yaw = global_pose_yaw_list
+                Node_history.current_scan = current_scan_list
+                
                 node_pub.publish(Node_history)
 
 
@@ -873,7 +883,9 @@ if __name__ == "__main__":
                     _, _, pose = ScanMatching().icp(A[5], B[5])
 
                     Cov = np.array(
-                        [20, 0, 0, 0, 20, 0, 0, 0, 10000]
+                        [20,  0, 0,
+                          0, 20, 0,
+                          0,  0, 10000]
                     )
                     Edge_set.append([
                         Node_set[-2][0],

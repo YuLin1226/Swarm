@@ -1,7 +1,11 @@
-#!/usr/bin/env python
-import rospy
 import numpy as np
-import math
-import matplotlib.pyplot as plt
+x = []
+y = []
 
+for i in range(10):
+    x.append(i*1)
+    y.append(i*10)
 
+c = np.array((x,y)).T
+
+print(c)

@@ -58,6 +58,7 @@ find_package(catkin REQUIRED COMPONENTS
    Optimized_Node.msg
    Node_List.msg
    Edge_List.msg
+   Scan.msg
 )
 
 ## Generate services in the 'srv' folder
