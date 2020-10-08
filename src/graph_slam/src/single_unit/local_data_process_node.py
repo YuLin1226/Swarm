@@ -166,7 +166,7 @@ class ScanMatching():
                     print('Converged!')
                 break
 
-        return transformation_history, points, [yaw, x, y]
+        return transformation_history, points, [x, y, yaw]
 
 
 class ODOM():
@@ -192,7 +192,7 @@ class ODOM():
         # Pose
         self.x = 0
         self.y = 0
-        self.yaw = -3.14
+        self.yaw = 0
 
         # rospy
         self.odom_pub = rospy.Publisher(topic_pub, Odometry, queue_size=50)
@@ -625,35 +625,33 @@ class LiDAR_Association():
                     y
                 ])
         self.scan = np.array(point)
-        px = self.scan[:,0]
-        py = self.scan[:,1]
+        # px = self.scan[:,0]
+        # py = self.scan[:,1]
         # -- Segment 這段算很慢...
         # Seg = Segment(px, py)
         self.landmark = 1
 
-        scan = msg.ranges
-        f = Feature()
-        xy_set = f._tf_polar_to_xy(scan)
-        close_consecutive_dist_set, close_consecutive_dist_sum  = f._cal_close_consecutive_dist(xy_set)
-        consecutive_dist_set,       consecutive_dist_sum        = f._cal_consecutive_dist(xy_set)
-        consecutive_dist_std                                    = f._cal_consecutive_dist_standard_deviation(consecutive_dist_set)
-        curvature_set                                           = f._cal_curvature(consecutive_dist_set)
-        curvature_std                                           = f._cal_curvature_standard_deviation(curvature_set)
-        x_mean,                     y_mean                      = f._cal_centroid(xy_set)
-        geometry_std                                            = f._cal_geometry_standard_deviation(xy_set, x_mean, y_mean)
-        range_std                                               = f._cal_range_standard_deviation(scan)
+        # scan = msg.ranges
+        # f = Feature()
+        # xy_set = f._tf_polar_to_xy(scan)
+        # close_consecutive_dist_set, close_consecutive_dist_sum  = f._cal_close_consecutive_dist(xy_set)
+        # consecutive_dist_set,       consecutive_dist_sum        = f._cal_consecutive_dist(xy_set)
+        # consecutive_dist_std                                    = f._cal_consecutive_dist_standard_deviation(consecutive_dist_set)
+        # curvature_set                                           = f._cal_curvature(consecutive_dist_set)
+        # curvature_std                                           = f._cal_curvature_standard_deviation(curvature_set)
+        # x_mean,                     y_mean                      = f._cal_centroid(xy_set)
+        # geometry_std                                            = f._cal_geometry_standard_deviation(xy_set, x_mean, y_mean)
+        # range_std                                               = f._cal_range_standard_deviation(scan)
 
-        self.feature_vector.append([
-            close_consecutive_dist_sum,
-            consecutive_dist_sum,
-            consecutive_dist_std,
-            curvature_std,
-            [x_mean, y_mean],
-            geometry_std,
-            range_std
-        ])
-        # print(self.feature_vector[-1])
-        # print("test speed")
+        # self.feature_vector.append([
+        #     close_consecutive_dist_sum,
+        #     consecutive_dist_sum,
+        #     consecutive_dist_std,
+        #     curvature_std,
+        #     [x_mean, y_mean],
+        #     geometry_std,
+        #     range_std
+        # ])
 
 # Function Area
 # -------------------
@@ -941,36 +939,3 @@ if __name__ == "__main__":
     finally:
         pass
         
-
-"""
-Edge from odometry.
-"""
-# # Node from
-# yaw_i = 2.4 
-# x_i , y_i = -4.5 , 0
-# T_i = tf(yaw_i, x_i, y_i)
-
-# # Node to 
-# yaw_j = 2.8 
-# x_j , y_j = -5, -0.3
-# T_j = tf(yaw_j, x_j, y_j)
-
-# # tf from j to i
-# yaw_ji = yaw_j - yaw_i
-# dv = np.array([
-#     [x_j],
-#     [y_i],
-#     [1]
-# ])
-
-# v = np.linalg.inv(T_j).dot(dv)
-# x_ji = v[0,0]
-# y_ji = v[1,0]
-
-# T_ji = tf(yaw_ji, x_ji, y_ji)
-
-# error = np.linalg.inv(T_i.dot(T_ji)).dot(T_j)
-
-"""
-Put T_ji into edge list. 
-"""

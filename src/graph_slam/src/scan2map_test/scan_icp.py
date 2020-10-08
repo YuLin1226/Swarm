@@ -402,6 +402,20 @@ def icp(reference_points, points, max_iterations=50, distance_threshold=0.5, con
 
 # --
 
+
+def v2t(vector):
+    
+    c = math.cos(vector[2])
+    s = math.sin(vector[2])
+    x = float(vector[0])
+    y = float(vector[1])
+    T = np.array([
+        [c,  -s,  x],
+        [s,   c,  y],
+        [0,   0,  1]
+    ])
+    return T
+
 def t2v(T):
     '''(Done)
     homogeneous transformation to vector
@@ -476,11 +490,11 @@ def cb_scan_2(msg):
             ])
 
 
-            c = math.cos(0.292)
-            s = math.sin(0.292)
+            c = math.cos(0.3)
+            s = math.sin(0.3)
 
-            x = x*c - y*s + (+0.588)
-            y = x*s + y*c + (+0.17)
+            x = x*c - y*s + (+0.5)
+            y = x*s + y*c + (+0.3)
 
             MAP_3_list.append([
                 x,

@@ -361,7 +361,7 @@ class DATA_COLLECTOR():
     def _get_edge(self, edge_data):
         
         # cov = np.reshape(np.array(edge_data.covariance), (edge_data.covariance_shape.row, edge_data.covariance_shape.row))
-        cov = np.array([[20,0,0],[0,20,0],[0,0,20]])
+        cov = np.array([[50,0,0],[0,50,0],[0,0,10]])
         self.edge_set = []
         for i in range(edge_data.Number_Edge):
             self.edge_set.append([
