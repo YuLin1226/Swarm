@@ -372,11 +372,11 @@ class DATA_COLLECTOR():
                     self.candidate_list.append(
                         self.node_set[i]
                     )
-            print(self.candidate_list[0][4][0,:])
+            
             self.candidate_list.append(
                 self.node_set[-1]
             )
-            print(self.candidate_list[-1][4][0,:])
+            
             if len(self.candidate_list) > 1:
                 return True
             else:

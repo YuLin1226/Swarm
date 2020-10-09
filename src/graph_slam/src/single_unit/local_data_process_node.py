@@ -762,6 +762,7 @@ class CAR():
         self.odom = ODOM()
 
         self.updated_node = None
+        self.loop_close_edge = None
         self.flag_getting_updated = False
         self.flag_getting_loop_closing = False
         rospy.Subscriber(topic_SUB_OPT_NODE, Optimized_Node, self._get_updated_node)
@@ -776,6 +777,14 @@ class CAR():
     def _get_loop_closing_edge(self, msg):
         
         self.flag_getting_loop_closing = True
+        self.loop_close_edge = [
+            msg.Node_ID_From,
+            msg.Node_ID_To,
+            [   msg.relative_pose.x,
+                msg.relative_pose.y,
+                msg.relative_pose.yaw
+            ]
+        ]
         
         return
 
@@ -940,6 +949,20 @@ if __name__ == "__main__":
                     # current_edge.covariance_shape.column = 3
                     # edge_pub.publish(current_edge)
 
+                if car.flag_getting_loop_closing is True:
+                    Cov = np.array(
+                        [20,  0, 0,
+                          0, 20, 0,
+                          0,  0, 10000]
+                    )
+                    Edge_set.append([
+                        car.loop_close_edge[0],
+                        car.loop_close_edge[1],
+                        car.loop_close_edge[2],
+                        Cov
+                    ])
+                    car.flag_getting_loop_closing = False
+
                 if car.flag_getting_updated is True:
                     # update the node info here
                     print("Updated Done")
@@ -947,7 +970,7 @@ if __name__ == "__main__":
                     car.flag_getting_updated = False
                     pass
 
-                if node_id > 300:
+                if node_id > 500:
                     break
                 
                 
