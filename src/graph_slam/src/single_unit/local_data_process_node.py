@@ -656,6 +656,9 @@ class LiDAR_Association():
         #     range_std
         # ])
 
+
+
+
 # Function Area
 # -------------------
 def cal_acos(v1, v2):
@@ -754,18 +757,26 @@ def v2t(vector):
 
 # Main Class
 class CAR():
-    def __init__(self, topic='/solamr_1/scan_lidar'):
-        self.lidar = LiDAR_Association(topic)
+    def __init__(self, topic_SUB_LiDAR='/solamr_1/scan_lidar', topic_SUB_OPT_NODE="/solamr_1/optimized_node", topic_SUB_LOOPCLOSE_EDGE="/solamr_1/loop_closing_edge"):
+        self.lidar = LiDAR_Association(topic_SUB_LiDAR)
         self.odom = ODOM()
 
         self.updated_node = None
         self.flag_getting_updated = False
-        rospy.Subscriber("/solamr_1/optimized_node", Optimized_Node, self._get_updated_node)
+        self.flag_getting_loop_closing = False
+        rospy.Subscriber(topic_SUB_OPT_NODE, Optimized_Node, self._get_updated_node)
+        rospy.Subscriber(topic_SUB_LOOPCLOSE_EDGE, Edge, self._get_loop_closing_edge)
 
     def _get_updated_node(self, node_msg):
         
         self.flag_getting_updated = True
         self.updated_node = node_msg
+        return
+
+    def _get_loop_closing_edge(self, msg):
+        
+        self.flag_getting_loop_closing = True
+        
         return
 
 if __name__ == "__main__":
@@ -843,7 +854,6 @@ if __name__ == "__main__":
                 global_pose_x_list = []
                 global_pose_y_list = []
                 global_pose_yaw_list = []
-                current_scan_point = Scan()
                 current_scan_list = []
                 
                 for i in range(len(Node_set)):
@@ -851,7 +861,7 @@ if __name__ == "__main__":
                     global_pose_x_list.append(Node_set[i][1])
                     global_pose_y_list.append(Node_set[i][2])
                     global_pose_yaw_list.append(Node_set[i][3])
-                    
+                    current_scan_point = Scan()
                     current_scan_point.point_x = Node_set[i][5][:,0]
                     current_scan_point.point_y = Node_set[i][5][:,1]
                     current_scan_list.append(current_scan_point)

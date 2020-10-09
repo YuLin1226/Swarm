@@ -14,7 +14,7 @@ from std_msgs.msg import Bool
 # from nav_msgs.msg import Odometry
 # from sensor_msgs.msg import JointState # For subscrbing JointState to compute odom
 # from sensor_msgs.msg import LaserScan # For subscribing Laser Scan
-# from sklearn.neighbors import NearestNeighbors # For ICP
+from sklearn.neighbors import NearestNeighbors # For ICP
 
 
 # -------------- CLASS --------------
@@ -313,18 +313,18 @@ class Feature():
 
 class DATA_COLLECTOR():
     
-    def __init__(self, topic_NODE, topic_EDGE):
+    def __init__(self, topic_SUB_NODE, topic_SUB_EDGE, topic_PUB_EDGE):
 
         self.node_set = []
         self.edge_set = []
 
 
         # Publisher Declaration
-        # self.optimized_node_pub = rospy.Publisher("/solamr_1/optimized_node", Optimized_Node, queue_size=10)
+        self.loop_closing_edge_pub = rospy.Publisher(topic_PUB_EDGE, Edge, queue_size=10)
 
         # Subscriber Declaration
-        rospy.Subscriber(topic_NODE, Node_List, self._get_node)
-        rospy.Subscriber(topic_EDGE, Edge_List, self._get_edge)
+        rospy.Subscriber(topic_SUB_NODE, Node_List, self._get_node)
+        rospy.Subscriber(topic_SUB_EDGE, Edge_List, self._get_edge)
         
 
     def _get_node(self, node_data):
@@ -338,6 +338,7 @@ class DATA_COLLECTOR():
                 node_data.global_pose_yaw[i],
                 np.array((node_data.current_scan[i].point_x, node_data.current_scan[i].point_y)).T                
             ])
+        
         
 
     def _get_edge(self, edge_data):
@@ -371,11 +372,11 @@ class DATA_COLLECTOR():
                     self.candidate_list.append(
                         self.node_set[i]
                     )
-            
+            print(self.candidate_list[0][4][0,:])
             self.candidate_list.append(
                 self.node_set[-1]
             )
-
+            print(self.candidate_list[-1][4][0,:])
             if len(self.candidate_list) > 1:
                 return True
             else:
@@ -394,11 +395,16 @@ class DATA_COLLECTOR():
             for i in range(length-1):
                 ref_current_vector = _cal_feature_vector(self.candidate_list[i][4])
                 similarity_val = _identify_similarity(current_feature_vector, ref_current_vector)
-                print(similarity_val)
-                if similarity_val > 0.3:
-                    print("Found it, we nailed it !!!!")
-                    print(self.candidate_list[-1][0])
-                    print(self.candidate_list[i][0])
+                
+                if similarity_val > 0.9:
+                    _, _, loop_closing_pose = ScanMatching().icp(self.candidate_list[i][4], self.candidate_list[-1][4])
+                    current_edge = Edge()
+                    current_edge.Node_ID_From = self.candidate_list[i][0]
+                    current_edge.Node_ID_To = self.candidate_list[-1][0]
+                    current_edge.relative_pose.x = loop_closing_pose[0]
+                    current_edge.relative_pose.y = loop_closing_pose[1]
+                    current_edge.relative_pose.yaw = loop_closing_pose[2]
+                    self.loop_closing_edge_pub.publish(current_edge) 
                     break
                 
 
@@ -488,8 +494,9 @@ if __name__ == "__main__":
 
     try:
         
-        info = DATA_COLLECTOR(  topic_NODE = '/solamr_1/collector_node',
-                                topic_EDGE = '/solamr_1/collector_edge', 
+        info = DATA_COLLECTOR(  topic_SUB_NODE = '/solamr_1/collector_node',
+                                topic_SUB_EDGE = '/solamr_1/collector_edge',
+                                topic_PUB_EDGE = '/solamr_1/loop_closing_edge', 
                                 )
         
         while not rospy.is_shutdown():
