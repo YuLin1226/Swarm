@@ -449,7 +449,7 @@ def _identify_similarity(feature_vector_A, feature_vector_B, method=0):
         print("Method Selection Error...")
         return
 
-def distance_check(pointA, pointB, dist_limit=1):
+def distance_check(pointA, pointB, dist_limit=0.5):
 
     dist = ( (pointA[0]-pointB[0])**2 + (pointA[1]-pointB[1])**2 )**0.5
     if dist <= dist_limit:

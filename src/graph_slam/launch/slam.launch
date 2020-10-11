@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+
+<launch>
+  <arg name="use_joy" default="false" /> 
+
+<!-- Create Local Process Node -->
+    <node pkg="graph_slam" type="local_data_process_node.py" name="local_process_node" output="screen"/>
+
+<!-- Graph Optimization Node -->
+    <node pkg="graph_slam" type="graph_optimization_node.py" name="graph_optimize_node" output="screen"/>
+
+<!-- Graph Plot -->
+    <node pkg="graph_slam" type="graph_plot.py" name="graph_plot" output="screen"/>
+
+<!-- Loop Closing Process Node -->
+    <node pkg="graph_slam" type="loop_closing_node.py" name="loop_closing" output="screen"/>
+
+    
+    
+    
+    
+    <!-- <node pkg="joy" type="joy_node" name="solamr_1_joy_node" if="$(arg use_joy)">
+        <param name="dev" type="string" value="/dev/input/js0" />
+        <remap from="/joy" to="/solamr_1/joy" />
+	    <param name="deadzone" value="0.0" />
+	    <param name="autorepeat_rate" value="130" />
+    </node> -->
+
+</launch>
