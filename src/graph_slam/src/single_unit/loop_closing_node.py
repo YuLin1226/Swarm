@@ -369,9 +369,10 @@ class DATA_COLLECTOR():
                     [self.node_set[i][1],  self.node_set[i][2]]
                 )
                 if flag:
-                    self.candidate_list.append(
-                        self.node_set[i]
-                    )
+                    if not self.node_set[-1][0] == self.node_set[i][0] + 1:
+                        self.candidate_list.append(
+                            self.node_set[i]
+                        )
             
             self.candidate_list.append(
                 self.node_set[-1]
