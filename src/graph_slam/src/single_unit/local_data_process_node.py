@@ -19,6 +19,17 @@ class ScanMatching():
         pass
 
 
+    def rotation_transform(self, yaw, vector):
+        c = math.cos(yaw)
+        s = math.sin(yaw)
+        rot = np.array([
+            [c, -s],
+            [s,  c]
+        ])
+
+        return rot.dot(vector.T).T
+
+
     def euclidean_distance(self, point1, point2):
         """
         Euclidean distance between two points.
@@ -899,7 +910,11 @@ if __name__ == "__main__":
                     A = Node_set[-2]
                     B = Node_set[-1]
 
-                    _, _, pose = ScanMatching().icp(A[5], B[5])
+
+                    delta_yaw = B[3] - A[3]
+                    pre_rot_scan = ScanMatching().rotation_transform(delta_yaw, B[5])
+                    # _, _, pose = ScanMatching().icp(A[5], B[5])
+                    _, _, pose = ScanMatching().icp(A[5], pre_rot_scan)
 
                     Cov = np.array(
                         [20,  0, 0,
@@ -909,7 +924,7 @@ if __name__ == "__main__":
                     Edge_set.append([
                         Node_set[-2][0],
                         Node_set[-1][0],
-                        pose,
+                        [pose[0], pose[1], pose[2] + delta_yaw],
                         Cov
                     ])
 
@@ -973,7 +988,7 @@ if __name__ == "__main__":
                 if node_id > 500:
                     break
                 
-                
+                car.lidar.landmark = None
                 rate.sleep()
             
         rospy.spin()

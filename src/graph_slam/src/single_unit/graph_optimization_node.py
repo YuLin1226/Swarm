@@ -366,9 +366,9 @@ class DATA_COLLECTOR():
         for i in range(edge_data.Number_Edge):
             
             if abs(edge_data.Node_ID_From[i] - edge_data.Node_ID_To[i])>1:
-                cov = np.array([[500,0,0],[0,500,0],[0,0,1000]])
+                cov = np.array([[500,0,0],[0,500,0],[0,0,100]])
             else:
-                cov = np.array([[50,0,0],[0,50,0],[0,0,10]])
+                cov = np.array([[50000,0,0],[0,50000,0],[0,0,10000]])
 
             self.edge_set.append([
                 edge_data.Node_ID_From[i],
@@ -396,7 +396,7 @@ class DATA_COLLECTOR():
             optimal_node_set.Optimized_x = np.array([ i[1] for i in graph_result ])
             optimal_node_set.Optimized_y = np.array([ i[2] for i in graph_result ])
             optimal_node_set.Optimized_yaw = np.array([ i[3] for i in graph_result ])
-            print(optimal_node_set)
+            # print(optimal_node_set)
             self.optimized_node_pub.publish(optimal_node_set)
 
             print("Mission Completed")

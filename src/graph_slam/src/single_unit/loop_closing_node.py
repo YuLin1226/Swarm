@@ -23,6 +23,16 @@ class ScanMatching():
     def __init__(self):
         pass
 
+    
+    def rotation_transform(self, yaw, vector):
+        c = math.cos(yaw)
+        s = math.sin(yaw)
+        rot = np.array([
+            [c, -s],
+            [s,  c]
+        ])
+
+        return rot.dot(vector.T).T
 
     def euclidean_distance(self, point1, point2):
         """
@@ -398,13 +408,17 @@ class DATA_COLLECTOR():
                 similarity_val = _identify_similarity(current_feature_vector, ref_current_vector)
                 
                 if similarity_val > 0.9:
-                    _, _, loop_closing_pose = ScanMatching().icp(self.candidate_list[i][4], self.candidate_list[-1][4])
+                    delta_yaw = self.candidate_list[-1][3] - self.candidate_list[i][3]
+                    pre_rot_pose_list = ScanMatching().rotation_transform(delta_yaw, self.candidate_list[-1][4])
+
+                    # _, _, loop_closing_pose = ScanMatching().icp(self.candidate_list[i][4], self.candidate_list[-1][4])
+                    _, _, loop_closing_pose = ScanMatching().icp(self.candidate_list[i][4], pre_rot_pose_list)
                     current_edge = Edge()
                     current_edge.Node_ID_From = self.candidate_list[i][0]
                     current_edge.Node_ID_To = self.candidate_list[-1][0]
                     current_edge.relative_pose.x = loop_closing_pose[0]
                     current_edge.relative_pose.y = loop_closing_pose[1]
-                    current_edge.relative_pose.yaw = loop_closing_pose[2]
+                    current_edge.relative_pose.yaw = loop_closing_pose[2] + delta_yaw
                     self.loop_closing_edge_pub.publish(current_edge) 
                     break
                 
