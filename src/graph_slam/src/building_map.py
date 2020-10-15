@@ -116,7 +116,7 @@ def cb_scan(msg):
         if MAP_1[px,py] > 1:
             MAP_1[px,py] = 1
 
-        pixel_free = list(bresenham(int(100*(ROBOT_X - MAP_1_ORIGIN[1])/5), int(100*(ROBOT_Y - MAP_1_ORIGIN[1])/5), px, py))
+        pixel_free = list(bresenham(int(100*(ROBOT_X - MAP_1_ORIGIN[0])/5), int(100*(ROBOT_Y - MAP_1_ORIGIN[1])/5), px, py))
         for i in range(len(pixel_free)-2):
             MAP_1[pixel_free[i+1]] -= LOG_odd_free
             if MAP_1[px,py] < -1:
@@ -153,7 +153,7 @@ def cb_scan(msg):
         if MAP_2[px,py] > 1:
             MAP_2[px,py] = 1
 
-        pixel_free = list(bresenham(int(100*(ROBOT_X - MAP_2_ORIGIN[1])/50), int(100*(ROBOT_Y - MAP_2_ORIGIN[1])/50), px, py))
+        pixel_free = list(bresenham(int(100*(ROBOT_X - MAP_2_ORIGIN[0])/50), int(100*(ROBOT_Y - MAP_2_ORIGIN[1])/50), px, py))
         for i in range(len(pixel_free)-2):
             MAP_2[pixel_free[i+1]] -= LOG_odd_free
             if MAP_2[px,py] < -1:

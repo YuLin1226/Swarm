@@ -817,8 +817,8 @@ if __name__ == "__main__":
         )
     
     try:
-        print("sleep for 5 sec.")
-        rospy.sleep(1)
+        print("sleep for 2 sec.")
+        rospy.sleep(2)
         print("Woke UP.")
 
         # List Set
@@ -985,8 +985,8 @@ if __name__ == "__main__":
                     car.flag_getting_updated = False
                     pass
 
-                if node_id > 500:
-                    break
+                # if node_id > 500:
+                #     break
                 
                 car.lidar.landmark = None
                 rate.sleep()
