@@ -10,7 +10,10 @@
     <node pkg="graph_slam" type="graph_optimization_node.py" name="graph_optimize_node" output="screen"/>
 
 <!-- Graph Plot -->
-    <node pkg="graph_slam" type="graph_plot.py" name="graph_plot" output="screen"/>
+    <!-- <node pkg="graph_slam" type="graph_plot.py" name="graph_plot" output="screen"/> -->
+
+<!-- MAP Plot -->
+    <node pkg="graph_slam" type="map_builder.py" name="map_plot" output="screen"/>
 
 <!-- Loop Closing Process Node -->
     <node pkg="graph_slam" type="loop_closing_node.py" name="loop_closing" output="screen"/>
