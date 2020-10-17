@@ -4,8 +4,10 @@ import math
 import numpy as np
 import matplotlib.pyplot as plt
 from car_msg.msg import Node, Edge, Optimized_Node, Node_List, Edge_List
+from nav_msgs.msg import OccupancyGrid
 from std_msgs.msg import Bool
 from bresenham import bresenham
+import tf
 
 # -- CLASS
 class DATA_COLLECTOR():
@@ -88,7 +90,7 @@ class MAP_BUILDER():
             pixel_x = int(100*(scan_x - self.map_origin[0])/self.resolution)
             pixel_y = int(100*(scan_y - self.map_origin[1])/self.resolution)
             
-            while pixel_x < 0 or pixel_x > self.map.shape[0] or pixel_y < 0 or pixel_y > self.map.shape[1]:
+            while pixel_x < 0 or pixel_x >= self.map.shape[0] or pixel_y < 0 or pixel_y >= self.map.shape[1]:
                 if pixel_x < 0:
                     
                     new_map = np.zeros((int(self.extend_map_size/self.resolution), self.map.shape[1]))
@@ -96,7 +98,7 @@ class MAP_BUILDER():
                     pixel_x += int(self.extend_map_size/self.resolution)
                     self.map_origin[0] -= self.extend_map_size/100
 
-                elif pixel_x > self.map.shape[0]:
+                elif pixel_x >= self.map.shape[0]:
                     new_map = np.zeros((int(self.extend_map_size/self.resolution), self.map.shape[1]))
                     self.map = np.vstack((self.map, new_map))
 
@@ -107,7 +109,7 @@ class MAP_BUILDER():
                     pixel_y += int(self.extend_map_size/self.resolution)
                     self.map_origin[1] -= self.extend_map_size/100
 
-                elif pixel_y > self.map.shape[1]:
+                elif pixel_y >= self.map.shape[1]:
                     new_map = np.zeros((self.map.shape[0], int(self.extend_map_size/self.resolution)))
                     self.map = np.hstack((self.map, new_map))
             
@@ -173,16 +175,41 @@ if __name__ == "__main__":
         indoor_map = MAP_BUILDER()
         viewer = Viewer()
 
-        count = 0
+        # robot_map_pub = rospy.Publisher("/solamr_1/occupancy_grid_map", OccupancyGrid, queue_size=10)
+        # robot_map = OccupancyGrid()
+
         while not rospy.is_shutdown():
             
-            if len(lidar_info.node_set) > 0:
+            if len(lidar_info.node_set) > 0:                
+                for i in range(len(lidar_info.node_set)):
+                    indoor_map._update_map(lidar_info.node_set[i])
                 
-                for i in range(len(lidar_info.node_set) - count):
-                    indoor_map._update_map(lidar_info.node_set[i + count])
                 
-                count = len(lidar_info.node_set)
+
             viewer.update(indoor_map.map, [indoor_map.robot_pixel_x, indoor_map.robot_pixel_y])
+
+
+
+            # # Occupancy Grid Map Data Process Part:
+            
+            # if len(lidar_info.node_set) > 0:
+
+            #     q = tf.transformations.quaternion_from_euler(0, 0, lidar_info.node_set[0][3])
+
+            #     robot_map.data = np.reshape(indoor_map.map, indoor_map.map.shape[0]*indoor_map.map.shape[1], order='F')
+            #     robot_map.info.resolution = indoor_map.resolution
+            #     robot_map.info.width = indoor_map.map.shape[1]
+            #     robot_map.info.height = indoor_map.map.shape[0]
+            #     robot_map.info.origin.position.x = indoor_map.map_origin[0]
+            #     robot_map.info.origin.position.y = indoor_map.map_origin[1]
+            #     robot_map.info.origin.position.z = 0
+            #     robot_map.info.origin.orientation.x = q[0]
+            #     robot_map.info.origin.orientation.y = q[1]
+            #     robot_map.info.origin.orientation.z = q[2]
+            #     robot_map.info.origin.orientation.w = q[3]
+
+            #     robot_map_pub.publish(robot_map)
+
             rate.sleep()
 
 
